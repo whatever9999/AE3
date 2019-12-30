@@ -1,4 +1,5 @@
 ﻿using UnityEngine;
+using System.Collections.Generic;
 
 public class CharacterState : MonoBehaviour
 {
@@ -67,14 +68,15 @@ public class CharacterState : MonoBehaviour
     private float timeCasting;
 
     //Buffs
-    private Buff[] buffs;
+    private List<Buff> currentBuffs = new List<Buff>();
 
     //Targeting
     private CharacterState target;
 
-    /*
-     * Getters and Setters
-     */
+    //Animation
+    private Animator A;
+
+    #region GettersAndSetters
     public CharacterState getTarget() { return target; }
     public void setTarget(CharacterState CS) { target = CS; }
     public int getHealth() { return currentHealth; }
@@ -85,6 +87,20 @@ public class CharacterState : MonoBehaviour
     public void setMana(int newMana) { currentMana = newMana; }
     public int getMaxMana() { return maxMana; }
     public void setMaxMana(int newMaxMana) { maxMana = newMaxMana; }
+    public float getAttackSpeed() { return currentAttackSpeed; }
+    public void setAttackSpeed(float newAttackSpeed) { 
+        currentAttackSpeed = newAttackSpeed; 
+        //Set animation speed
+    }
+    public int getChanceToHit() { return currentChanceToHit; }
+    public void setChanceToHit(int newChanceToHit) { currentChanceToHit = newChanceToHit; }
+    public Vector2 getAttackDamage() { return currentAttackDamage; }
+    public void setAttackDamage(Vector2 newAttackDamage) { currentAttackDamage = newAttackDamage; }
+    public int getChanceToCrit() { return currentchanceToCrit; }
+    public void setChanceToCrit(int newChanceToCrit) { currentchanceToCrit = newChanceToCrit; }
+    public float getCritDamageMultiplier() { return currentCriticalDamageMultiplier; }
+    public void setCritDamageMultiplier(float newCriticalDamageMultiplier) { currentCriticalDamageMultiplier = newCriticalDamageMultiplier; }
+#endregion
 
     /*
      * Other variables
@@ -104,6 +120,13 @@ public class CharacterState : MonoBehaviour
         {
             target = GameObject.Find("Isilion").GetComponent<CharacterState>();
         }
+
+        A = GetComponent<Animator>();
+    }
+
+    private void Update()
+    {
+        print(currentAttackSpeed);
     }
 
     private void InstantiateCharacter()
@@ -120,6 +143,43 @@ public class CharacterState : MonoBehaviour
 
         maxHealth = startHealth;
         maxMana = startMana;
+    }
+
+    public void DealDamage(int damage)
+    {
+        currentHealth -= damage;
+
+        if(currentHealth <= 0)
+        {
+            currentHealth = 0;
+            if(tag.Equals("Player"))
+            {
+                A.SetBool("Dead", true);
+                //End Game
+            } else if(tag.Equals("Enemy"))
+            {
+                A.SetBool("Dead", true);
+            }
+        }
+
+        if (tag.Equals("Player"))
+        {
+            UIM.UpdatePlayerHealth(currentHealth, maxHealth);
+        }
+        else if (tag.Equals("Enemy"))
+        {
+            //Update target or target of target
+        }
+    }
+
+    public void AddBuff(Buff b)
+    {
+        currentBuffs.Add(b);
+    }
+
+    public void RemoveBuff(Buff b)
+    {
+        currentBuffs.Remove(b);
     }
 }
 
@@ -141,64 +201,4 @@ public struct ManaRegen
 {
     public ManaRegenCircumstance circumstance;
     public int manaRegenAmount;
-}
-
-public enum BuffName
-{
-    BlackFathomHamstring,
-    Bash,
-    VengefulStance,
-    Chilled,
-    FrozenSolid,
-    Stun,
-    Forbearance,
-    DivineShield,
-    HandOfFreedom,
-    ArdentDefender,
-    JudgementOfRighteousness,
-    JudgementOfWisdom,
-    JudgementOfWeakness,
-    DivineStrength,
-    DivineWisdom,
-    BlessingOfKings
-
-}
-
-public enum BuffEffectName
-{
-    WeaponDamageMultipier,
-    SlowMovement,
-    SlowAttack,
-    Stun,
-    DeflectDamage,
-    NoMovement,
-    ReducedDamageTaken,
-    ImmuneToDamage,
-    NoMelee,
-    ImmuneToStun,
-    ImmuneToSlow,
-    ReduceDamageGiven,
-    RestoreHealthToAttacker,
-    RestoreManaToAttacker,
-    IncreaseMeleeDamage,
-    RecoverMana,
-    IncreaseAttackSpeed,
-    CritChance,
-    IncreaseMaxHeath,
-    IncreaseMaxMana
-}
-
-public struct BuffEffect
-{
-    public BuffEffectName buffEffectName;
-    public int buffPower;
-    public int buffChance;
-}
-
-public struct Buff
-{
-    public BuffName buffName;
-    public BuffEffect[] buffEffect;
-    public bool infiniteLength;
-    public int buffLengthInSeconds;
 }

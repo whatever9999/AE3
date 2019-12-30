@@ -8,6 +8,8 @@ TagManager:
   - HealthSlider
   - ManaSlider
   - CharacterImage
+  - Buff
+  - TargetBuffOrDebuff
   layers:
   - Default
   - TransparentFX
