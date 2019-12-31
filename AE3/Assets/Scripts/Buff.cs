@@ -44,7 +44,6 @@ public enum BuffName
     DevotionAura,
     MagicalAura,
     RetributionAura
-
 }
 
 public enum BuffEffectName

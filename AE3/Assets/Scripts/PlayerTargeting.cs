@@ -31,20 +31,74 @@ public class PlayerTargeting : MonoBehaviour
                             GetComponent<CharacterState>().setTarget(null);
                             UIM.ToggleTargetPanel(false);
                             UIM.ToggleTargetOfTargetPanel(false);
-                        } else
+                        }
+                        else
                         {
                             GetComponent<CharacterState>().setTarget(targetCS);
                             UIM.SetTarget(targetCS);
-                            if(targetCS.tag.Equals("Enemy") && targetCS.getTarget() != null)
+                            if (targetCS.tag.Equals("Enemy") && targetCS.getTarget() != null)
                             {
                                 UIM.SetTargetOfTarget(targetCS.getTarget());
-                            } else
+                            }
+                            else
                             {
                                 UIM.ToggleTargetOfTargetPanel(false);
                             }
                         }
                     }
                 }
+            }
+        }
+    }
+
+    public void SetTargetToSelf(CharacterState CS)
+    {
+        CharacterState currentTarget = CS.getTarget();
+
+        if (currentTarget != null && currentTarget.tag.Equals(CS.tag))
+        {
+            CS.setTarget(null);
+            UIM.ToggleTargetPanel(false);
+            UIM.ToggleTargetOfTargetPanel(false);
+        }
+        else
+        {
+            CS.setTarget(CS);
+            UIM.SetTarget(CS);
+            if (CS.tag.Equals("Enemy") && CS.getTarget() != null)
+            {
+                UIM.SetTargetOfTarget(CS.getTarget());
+            }
+            else
+            {
+                UIM.ToggleTargetOfTargetPanel(false);
+            }
+        }
+    }
+
+    public void SetTargetToTargetOfTarget(CharacterState CS)
+    {
+        CharacterState currentTarget = CS.getTarget();
+        CharacterState currentTargetofTarget = CS.getTarget().getTarget();
+
+        if (currentTarget != null && currentTarget.tag.Equals(currentTargetofTarget.tag))
+        {
+            CS.setTarget(null);
+            UIM.ToggleTargetPanel(false);
+            UIM.ToggleTargetOfTargetPanel(false);
+        }
+        else
+        {
+            CS.setTarget(currentTargetofTarget);
+            UIM.SetTarget(currentTargetofTarget);
+            if (CS.tag.Equals("Enemy") && CS.getTarget() != null)
+            {
+                UIM.SetTargetOfTarget(CS.getTarget());
+            }
+            else
+            {
+                UIM.ToggleTargetOfTargetPanel(false);
+
             }
         }
     }

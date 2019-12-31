@@ -72,8 +72,9 @@ public class PlayerMovement : MonoBehaviour
         } else
         {
             Transform target = CS.getTarget().transform;
+            bool attackMode = A.GetBool("AttackMode");
 
-            if(target.position.x < transform.position.x && target.position.y < transform.position.y)
+            if (target.position.x < transform.position.x && target.position.y < transform.position.y)
             {
                 //Enemy to bottom left
                 SR.flipX = true;
@@ -94,6 +95,8 @@ public class PlayerMovement : MonoBehaviour
                 SR.flipX = false;
                 A.runtimeAnimatorController = topAnimator;
             }
+
+            A.SetBool("AttackMode", attackMode);
         }
         
         A.SetFloat("Speed", MoveVec.magnitude);

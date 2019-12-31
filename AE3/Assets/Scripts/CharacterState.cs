@@ -124,11 +124,6 @@ public class CharacterState : MonoBehaviour
         A = GetComponent<Animator>();
     }
 
-    private void Update()
-    {
-        print(currentAttackSpeed);
-    }
-
     private void InstantiateCharacter()
     {
         currentHealth = startHealth;
@@ -181,6 +176,8 @@ public class CharacterState : MonoBehaviour
     {
         currentBuffs.Remove(b);
     }
+
+    
 }
 
 public enum AttackType

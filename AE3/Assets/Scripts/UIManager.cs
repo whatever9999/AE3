@@ -53,6 +53,12 @@ public class UIManager : MonoBehaviour
      */
     public GameObject normalAttackButton;
 
+    /*
+     * Ability Buttons
+     */
+    private bool abilityButtonHeld;
+    private float secondsAbilityButtonHeld;
+
     private void Start()
     {
         instance = this;
@@ -188,6 +194,11 @@ public class UIManager : MonoBehaviour
                     }
                 }
             }
+        }
+
+        if(abilityButtonHeld)
+        {
+            secondsAbilityButtonHeld += Time.deltaTime;
         }
     }
 
@@ -384,5 +395,24 @@ public class UIManager : MonoBehaviour
     public void OpenPanel(GameObject panel)
     {
         panel.SetActive(true);
+    }
+
+    public void AbilityButtonDown()
+    {
+        abilityButtonHeld = true;
+    }
+
+    public void AbilityButtonRelease(Ability a)
+    {
+        if(secondsAbilityButtonHeld < 1)
+        {
+            PlayerAbilities.instance.UseAbility(a);
+        } else
+        {
+            Tooltip.instance.OpenTooltip(a);
+        }
+
+        secondsAbilityButtonHeld = 0;
+        abilityButtonHeld = false;
     }
 }

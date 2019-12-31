@@ -8,12 +8,14 @@ public class Tooltip : MonoBehaviour
     public static Tooltip instance;
 
     private Image image;
-    private Text name;
+    private new Text name;
     private Text description;
     private GameObject removeButton;
 
     private BuffHandler activeBH;
     private Buff activeBuff;
+
+    private Ability activeAbility;
 
     private void Awake()
     {
@@ -87,6 +89,40 @@ public class Tooltip : MonoBehaviour
 
         activeBH = b.GetBuffHandler();
         activeBuff = b;
+
+        gameObject.SetActive(true);
+    }
+
+    public void OpenTooltip(Ability a)
+    {
+        image.sprite = a.image;
+        description.text = a.description;
+
+        string abilityName = a.name.ToString();
+        string newName = abilityName[0].ToString();
+        for (int i = 1; i < abilityName.Length; i++)
+        {
+            if (char.IsUpper(abilityName[i]))
+            {
+                newName += " " + abilityName[i];
+            }
+            else
+            {
+                newName += abilityName[i];
+            }
+        }
+        name.text = newName;
+
+        if (a.tag.Equals("Ability"))
+        {
+            removeButton.SetActive(true);
+        }
+        else
+        {
+            removeButton.SetActive(false);
+        }
+
+        activeAbility = a;
 
         gameObject.SetActive(true);
     }
