@@ -13,6 +13,7 @@ public class PlayerMovement : MonoBehaviour
     private Animator A;
     private SpriteRenderer SR;
     private CharacterState CS;
+    private NormalAttack NA;
 
     private void Start()
     {
@@ -20,6 +21,7 @@ public class PlayerMovement : MonoBehaviour
         A = GetComponent<Animator>();
         SR = GetComponent<SpriteRenderer>();
         CS = GetComponent<CharacterState>();
+        NA = GetComponent<NormalAttack>();
     }
 
     private void FixedUpdate()

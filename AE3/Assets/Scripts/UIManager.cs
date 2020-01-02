@@ -1,4 +1,5 @@
-﻿using UnityEngine;
+﻿using System.Collections;
+using UnityEngine;
 using UnityEngine.UI;
 
 public class UIManager : MonoBehaviour
@@ -58,6 +59,16 @@ public class UIManager : MonoBehaviour
      */
     private bool abilityButtonHeld;
     private float secondsAbilityButtonHeld;
+
+    /*
+     * Castbars
+     */
+    public GameObject playerCastbarAndText;
+    private Slider playerCastbar;
+    private Text playerCastbarText;
+    public GameObject targetCastbarAndText;
+    private Slider targetCastbar;
+    private Text targetCastbarText;
 
     private void Start()
     {
@@ -136,6 +147,12 @@ public class UIManager : MonoBehaviour
                 targetOfTargetImage = i;
             }
         }
+
+        //Get castbar components
+        playerCastbar = playerCastbarAndText.GetComponent<Slider>();
+        playerCastbarText = playerCastbarAndText.GetComponentInChildren<Text>();
+        targetCastbar = targetCastbarAndText.GetComponent<Slider>();
+        targetCastbarText = targetCastbarAndText.GetComponentInChildren<Text>();
 
         dragDistance = Screen.height * ScreenPercentageForSwipe / 100; //dragDistance is N% height of the screen
     }
@@ -337,12 +354,12 @@ public class UIManager : MonoBehaviour
         int targetMaxMana = CS.getMaxMana();
         if (targetMaxMana > 0)
         {
-            targetManaSlider.gameObject.SetActive(true);
+            targetOfTargetManaSlider.gameObject.SetActive(true);
             UpdateTargetOfTargetMana(CS.getMana(), CS.getMaxMana());
         }
         else
         {
-            targetManaSlider.gameObject.SetActive(false);
+            targetOfTargetManaSlider.gameObject.SetActive(false);
         }
     }
 
@@ -362,6 +379,34 @@ public class UIManager : MonoBehaviour
     {
         float sliderValue = (float)currentMana / (float)maxMana;
         targetOfTargetManaSlider.value = sliderValue;
+    }
+
+    public void SetPlayerCastbar(string spellName, float totalTime)
+    {
+        playerCastbarText.text = spellName;
+        playerCastbar.maxValue = totalTime;
+        StartCoroutine(Castbar(totalTime));
+    }
+
+    private IEnumerator Castbar(float totalTime)
+    {
+        playerCastbar.value = 0;
+        playerCastbar.gameObject.SetActive(true);
+        float timePassed = 0;
+
+        while (timePassed < totalTime)
+        {
+            yield return new WaitForSeconds(0.1f);
+            timePassed += 0.1f;
+            playerCastbar.value = timePassed;
+        }
+
+        playerCastbar.gameObject.SetActive(false);
+    }
+
+    public void SetTargetCastbar()
+    {
+
     }
 
     public void SwitchPanels(GameObject panelToOpen)
@@ -414,5 +459,22 @@ public class UIManager : MonoBehaviour
 
         secondsAbilityButtonHeld = 0;
         abilityButtonHeld = false;
+    }
+
+    public string MinutesAndSecondsFormat(int seconds)
+    {
+        int m = seconds / 60;
+        int s = seconds - (m * 60);
+        if (m != 0 && s == 0)
+        {
+            return m + "m";
+        }
+        else if (m != 0)
+        {
+            return m + "m" + s + "s";
+        }
+        else {
+            return s + "s";
+        }
     }
 }

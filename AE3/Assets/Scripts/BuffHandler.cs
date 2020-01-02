@@ -165,10 +165,10 @@ public class BuffHandler : MonoBehaviour
         possibleBuffObjects[buff].SetActive(true);
         CS.AddBuff(possibleBuffObjects[buff].GetComponent<Buff>());
 
-        for(int i = seconds; i >= 0; i--)
+        for(float i = seconds; i >= 0; i--)
         {
             yield return new WaitForSeconds(1);
-            buffTexts[buff].text = i + "s";
+            buffTexts[buff].text = UIManager.instance.MinutesAndSecondsFormat((int)System.Math.Ceiling(i));
         }
 
         possibleBuffObjects[buff].SetActive(false);

@@ -6,6 +6,7 @@ public class NormalAttack : MonoBehaviour
 {
     private bool combatMode = false;
     private bool isAttacking = false;
+    private bool inRange = false;
 
     private Animator A;
     private CharacterState CS;
@@ -16,36 +17,73 @@ public class NormalAttack : MonoBehaviour
         CS = GetComponent<CharacterState>();
     }
 
+    private void Update()
+    {
+        if (inRange && !isAttacking)
+        {
+            isAttacking = true;
+            StartCoroutine(Attack());
+        }
+    }
+
     public void NormalAttackButton()
     {
         combatMode = !combatMode;
         A.SetBool("AttackMode", combatMode);
     }
 
+    public void DisableCombat()
+    {
+        combatMode = false;
+        inRange = false;
+        A.SetBool("AttackMode", combatMode);
+    }
+
+    private void OnTriggerEnter2D(Collider2D collision)
+    {
+        if (combatMode)
+        {
+            if (collision.GetComponent<CharacterState>() == CS.getTarget())
+            {
+                inRange = true;
+            }
+        }
+    }
+
     private void OnTriggerStay2D(Collider2D collision)
     {
-        if(combatMode && !isAttacking)
+        if (combatMode)
         {
-            if (tag.Equals("Player") && collision.tag.Equals("Enemy") || tag.Equals("Enemy") && collision.tag.Equals("Player"))
+            if (collision.GetComponent<CharacterState>() == CS.getTarget())
             {
-                isAttacking = true;
-                StartCoroutine(Attack());
+                inRange = true;
+            }
+        }
+    }
+
+    private void OnTriggerExit2D(Collider2D collision)
+    {
+        if (combatMode)
+        {
+            if (collision.GetComponent<CharacterState>() == CS.getTarget())
+            {
+                inRange = false;
             }
         }
     }
 
     private IEnumerator Attack()
     {
-        A.speed = CS.getAttackSpeed();
+        float currentAttackSpeed = CS.getAttackSpeed();
+        A.speed = 1 / currentAttackSpeed;
         A.SetTrigger("Attack");
-        yield return new WaitForSeconds(A.speed);
+        yield return new WaitForSeconds(currentAttackSpeed);
         A.speed = 1;
         isAttacking = false;
     }
 
     public void AttackEvent()
     {
-        print("Here");
         //Successful hit?
         int rand = Random.Range(0, 100);
         if(rand <= CS.getChanceToHit())

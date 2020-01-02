@@ -131,6 +131,7 @@ public class CharacterState : MonoBehaviour
         currentAttackSpeed = startAttackSpeed;
         currentAttackDamage = startAttackDamage;
         currentChanceToHit = startChanceToHit;
+        currentchanceToCrit = startChanceToCrit;
         currentPhysicalDamageReduction = startPhysicalDamageReduction;
         currentCriticalDamageMultiplier = startCriticalDamageMultiplier;
         currentSpellCritChance = startSpellCritChance;
@@ -163,7 +164,39 @@ public class CharacterState : MonoBehaviour
         }
         else if (tag.Equals("Enemy"))
         {
-            //Update target or target of target
+            CharacterState playerTarget = PlayerAbilities.instance.GetPlayerCharacterState().getTarget();
+            CharacterState targetOfTarget = playerTarget.getTarget();
+            if (playerTarget == this)
+            {
+                UIM.UpdateTargetHealth(playerTarget.getHealth(), playerTarget.getMaxHealth());
+            } else if (targetOfTarget == this)
+            {
+                UIM.UpdateTargetOfTargetHealth(targetOfTarget.getHealth(), targetOfTarget.getMaxHealth());
+            }
+        }
+    }
+
+    public void DepleteMana(float percentageOfMana)
+    {
+        int manaToDeplete = (int)((maxMana / 100.0) * percentageOfMana);
+        currentMana -= manaToDeplete;
+
+        if (tag.Equals("Player"))
+        {
+            UIM.UpdatePlayerMana(currentMana, maxMana);
+        }
+        else if (tag.Equals("Enemy"))
+        {
+            CharacterState playerTarget = PlayerAbilities.instance.GetPlayerCharacterState().getTarget();
+            CharacterState targetOfTarget = playerTarget.getTarget();
+            if (playerTarget == this)
+            {
+                UIM.UpdateTargetMana(playerTarget.getMana(), playerTarget.getMaxMana());
+            }
+            else if (targetOfTarget == this)
+            {
+                UIM.UpdateTargetOfTargetMana(targetOfTarget.getMana(), targetOfTarget.getMaxMana());
+            }
         }
     }
 

@@ -3,10 +3,12 @@
 public class PlayerTargeting : MonoBehaviour
 {
     UIManager UIM;
+    NormalAttack NA;
 
     private void Start()
     {
         UIM = UIManager.instance;
+        NA = GetComponent<NormalAttack>();
     }
 
     void Update()
@@ -31,6 +33,7 @@ public class PlayerTargeting : MonoBehaviour
                             GetComponent<CharacterState>().setTarget(null);
                             UIM.ToggleTargetPanel(false);
                             UIM.ToggleTargetOfTargetPanel(false);
+                            NA.DisableCombat();
                         }
                         else
                         {

@@ -77,17 +77,23 @@ public class Ability : MonoBehaviour
     private Text timer;
 
     private bool useable = true;
-    private float cooldown = 0;
+    private bool coolingDown = false;
+    public void setCoolingDown(bool changeTo) { coolingDown = changeTo; }
+    public bool getCoolingDown() { return coolingDown; }
+    public bool getUseable() { return useable; }
 
     private Color redTint;
     private Color blackTint;
 
     private CharacterState CS;
 
-    private void Start()
+    private void Awake()
     {
         CS = PlayerAbilities.instance.GetPlayerCharacterState();
+    }
 
+    private void Start()
+    {
         Image[] images = GetComponentsInChildren<Image>();
 
         foreach(Image i in images)
@@ -107,44 +113,27 @@ public class Ability : MonoBehaviour
 
         blackTint = Color.black;
         blackTint.a = 0.5f;
-
-        cooldown = 50;
     }
 
-    private void Update()
+    private void OnEnable()
     {
-        if(cooldown > 0)
-        {
-            cooldown -= Time.deltaTime;
-            timer.text = (int)cooldown + "s";
-
-            if(tint.color != Color.black)
-            {
-                tint.color = blackTint;
-                tint.gameObject.SetActive(true);
-            }
-        } else if (cooldown < 0)
-        {
-            cooldown = 0;
-            timer.text = "";
-            UpdateAbilityColour();
-        } else
-        {
-            UpdateAbilityColour();
-        }
+        //UpdateAbilityColour();
     }
 
     public void UpdateAbilityColour()
     {
         CheckIfUseable();
 
-        if (useable && cooldown == 0 && tint.color != Color.white)
+        if (coolingDown && tint.color != Color.black) {
+            tint.color = blackTint;
+            tint.gameObject.SetActive(true);
+        }
+        else if (useable && !coolingDown && tint.gameObject.activeInHierarchy)
         {
             tint.gameObject.SetActive(false);
         }
         else if (!useable && tint.color != Color.red)
         {
-            
             tint.color = redTint;
             tint.gameObject.SetActive(true);
         }
@@ -155,7 +144,7 @@ public class Ability : MonoBehaviour
         //If in range and affordable
         int manaCost = (int)((CS.getMaxMana() / 100.0) * percentageManaCost);
 
-        if(CS.getMana() >= manaCost && cooldown == 0)
+        if(CS.getMana() >= manaCost && !coolingDown)
         {
             useable = true;
         } else
