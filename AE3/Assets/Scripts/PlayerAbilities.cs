@@ -14,7 +14,8 @@ public class PlayerAbilities : MonoBehaviour
     private CharacterState CS;
     private Animator A;
 
-    private ParticleSystem spellcastingEffect;
+    private ParticleSystem endSpellcastingEffect;
+    private ParticleSystem[] spellcastingEffect;
 
     private Ability[] abilities;
     private Text[] abilityTexts;
@@ -28,7 +29,21 @@ public class PlayerAbilities : MonoBehaviour
         CS = GetComponent<CharacterState>();
         A = GetComponent<Animator>();
 
-        spellcastingEffect = GetComponentInChildren<ParticleSystem>();
+        ParticleSystem[] effects = GetComponentsInChildren<ParticleSystem>();
+
+        int count = 0;
+        spellcastingEffect = new ParticleSystem[2];
+        foreach(ParticleSystem ps in effects)
+        {
+            if(ps.name.Equals("EndSpellcastingEffect"))
+            {
+                endSpellcastingEffect = ps;
+            } else if (ps.name.Equals("SpellcastingEffect"))
+            {
+                spellcastingEffect[count] = ps;
+                count++;
+            }
+        }
     }
 
     private void Start()
@@ -76,9 +91,17 @@ public class PlayerAbilities : MonoBehaviour
         //Casting animation and castbar
         A.SetBool("Casting", true);
         UIManager.instance.SetPlayerCastbar(a.name.ToString(), a.secondsToCast);
+        foreach(ParticleSystem ps in spellcastingEffect)
+        {
+            ps.Play();
+        }
         yield return new WaitForSeconds(a.secondsToCast);
+        foreach (ParticleSystem ps in spellcastingEffect)
+        {
+            ps.Stop();
+        }
         A.SetBool("Casting", false);
-        spellcastingEffect.Play();
+        endSpellcastingEffect.Play();
 
         //Update UI and start timer
         for (int i = 0; i < abilities.Length; i++)

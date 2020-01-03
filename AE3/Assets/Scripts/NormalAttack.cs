@@ -43,6 +43,12 @@ public class NormalAttack : MonoBehaviour
         A.SetBool("AttackMode", combatMode);
     }
 
+    public void EnableCombat()
+    {
+        combatMode = true;
+        A.SetBool("AttackMode", combatMode);
+    }
+
     public void CheckIfInRange()
     {
         if (combatMode)

@@ -78,6 +78,7 @@ public class Ability : MonoBehaviour
     private Image tint;
     private Text timer;
 
+    private bool setupComplete = false;
     private bool useable = true;
     private bool coolingDown = false;
     public void setCoolingDown(bool changeTo) { coolingDown = changeTo; }
@@ -94,32 +95,32 @@ public class Ability : MonoBehaviour
         CS = PlayerAbilities.instance.GetPlayerCharacterState();
     }
 
-    private void Start()
-    {
-        Image[] images = GetComponentsInChildren<Image>();
-
-        foreach(Image i in images)
-        {
-            if(i.name.Equals("Image"))
-            {
-                tint = i;
-            }
-        }
-        timer = GetComponentInChildren<Text>();
-
-        tint.gameObject.SetActive(false);
-        timer.text = "";
-
-        redTint = Color.red;
-        redTint.a = 0.5f;
-
-        blackTint = Color.black;
-        blackTint.a = 0.5f;
-    }
-
     private void OnEnable()
     {
-        //UpdateAbilityColour();
+        if(!setupComplete)
+        {
+            Image[] images = GetComponentsInChildren<Image>();
+
+            foreach (Image i in images)
+            {
+                if (i.name.Equals("Image"))
+                {
+                    tint = i;
+                }
+            }
+            timer = GetComponentInChildren<Text>();
+
+            tint.enabled = false;
+            timer.text = "";
+
+            redTint = Color.red;
+            redTint.a = 0.5f;
+
+            blackTint = Color.black;
+            blackTint.a = 0.5f;
+        }
+
+        UpdateAbilityColour();
     }
 
     public void UpdateAbilityColour()
@@ -128,16 +129,16 @@ public class Ability : MonoBehaviour
 
         if (coolingDown && tint.color != Color.black) {
             tint.color = blackTint;
-            tint.gameObject.SetActive(true);
+            tint.enabled = true;
         }
-        else if (useable && !coolingDown && tint.gameObject.activeInHierarchy)
+        else if (useable && !coolingDown && tint.enabled)
         {
-            tint.gameObject.SetActive(false);
+            tint.enabled = false;
         }
         else if (!useable && tint.color != Color.red)
         {
             tint.color = redTint;
-            tint.gameObject.SetActive(true);
+             tint.enabled = true;
         }
     }
 
@@ -175,5 +176,6 @@ public enum RangeType
 {
     MELEE,
     MODERATE,
-    LONG
+    LONG,
+    AGGRO
 }
