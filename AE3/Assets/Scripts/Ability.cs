@@ -67,11 +67,13 @@ public class Ability : MonoBehaviour
     public string description;
     public AbilityEffect[] effects;
     public BuffName[] buffs;
-    public float percentageManaCost;
+    public float percentagePowerCost;
     public bool instantCast;
     public float secondsToCast;
     public float secondsToCooldown;
     public bool singleTargetEffect;
+    public PowerTypes powerType;
+    public RangeType requiredRange;
 
     private Image tint;
     private Text timer;
@@ -142,9 +144,9 @@ public class Ability : MonoBehaviour
     private void CheckIfUseable()
     {
         //If in range and affordable
-        int manaCost = (int)((CS.getMaxMana() / 100.0) * percentageManaCost);
+        int manaCost = (int)((CS.getMaxPower() / 100.0) * percentagePowerCost);
 
-        if(CS.getMana() >= manaCost && !coolingDown)
+        if(CS.getPower() >= manaCost && !coolingDown)
         {
             useable = true;
         } else
@@ -167,4 +169,11 @@ public struct AbilityGroup
     public AbilityGroupName abilityGroupName;
     public AbilityName[] abilities;
     public GameObject abilityPanel;
+}
+
+public enum RangeType
+{
+    MELEE,
+    MODERATE,
+    LONG
 }

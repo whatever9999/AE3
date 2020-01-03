@@ -4,6 +4,8 @@ using UnityEngine;
 
 public class NormalAttack : MonoBehaviour
 {
+    public Range meleeRange;
+
     private bool combatMode = false;
     private bool isAttacking = false;
     private bool inRange = false;
@@ -19,6 +21,8 @@ public class NormalAttack : MonoBehaviour
 
     private void Update()
     {
+        CheckIfInRange();
+
         if (inRange && !isAttacking)
         {
             isAttacking = true;
@@ -39,33 +43,15 @@ public class NormalAttack : MonoBehaviour
         A.SetBool("AttackMode", combatMode);
     }
 
-    private void OnTriggerEnter2D(Collider2D collision)
+    public void CheckIfInRange()
     {
         if (combatMode)
         {
-            if (collision.GetComponent<CharacterState>() == CS.getTarget())
+            bool targetInRange = meleeRange.collider.IsTouching(CS.getTarget().GetComponent<NormalAttack>().meleeRange.collider);
+            if (targetInRange)
             {
                 inRange = true;
-            }
-        }
-    }
-
-    private void OnTriggerStay2D(Collider2D collision)
-    {
-        if (combatMode)
-        {
-            if (collision.GetComponent<CharacterState>() == CS.getTarget())
-            {
-                inRange = true;
-            }
-        }
-    }
-
-    private void OnTriggerExit2D(Collider2D collision)
-    {
-        if (combatMode)
-        {
-            if (collision.GetComponent<CharacterState>() == CS.getTarget())
+            } else
             {
                 inRange = false;
             }
@@ -106,4 +92,11 @@ public class NormalAttack : MonoBehaviour
             //Hit failed
         }
     }
+}
+
+[System.Serializable]
+public struct Range
+{
+    public RangeType range;
+    public CircleCollider2D collider;
 }

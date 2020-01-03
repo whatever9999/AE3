@@ -515,11 +515,13 @@ MonoBehaviour:
   description: Gives target divine strength buff.
   effects: []
   buffs: 0f000000
-  percentageManaCost: 5
+  percentagePowerCost: 0
   instantCast: 1
   secondsToCast: 0
   secondsToCooldown: 0
   singleTargetEffect: 1
+  powerType: 0
+  requiredRange: 0
 --- !u!114 &63862076
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1273,11 +1275,13 @@ MonoBehaviour:
     this buff but not melee attacks.
   effects: []
   buffs: 09000000
-  percentageManaCost: 0
+  percentagePowerCost: 0
   instantCast: 1
   secondsToCast: 0
   secondsToCooldown: 300
   singleTargetEffect: 1
+  powerType: 0
+  requiredRange: 0
 --- !u!114 &115751138
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -2481,11 +2485,13 @@ MonoBehaviour:
   description: Debuffs an enemy so their melee attack range is reduced by 8%.
   effects: []
   buffs: 0d000000
-  percentageManaCost: 0
+  percentagePowerCost: 0
   instantCast: 1
   secondsToCast: 0
   secondsToCooldown: 0
   singleTargetEffect: 1
+  powerType: 0
+  requiredRange: 0
 --- !u!114 &190959268
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -4083,11 +4089,13 @@ MonoBehaviour:
   - name: 0
     abilityPowerRange: {x: 140, y: 140}
   buffs: 
-  percentageManaCost: 10
+  percentagePowerCost: 0
   instantCast: 1
   secondsToCast: 0
   secondsToCooldown: 4.5
   singleTargetEffect: 1
+  powerType: 0
+  requiredRange: 0
 --- !u!114 &299379789
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -5840,11 +5848,13 @@ MonoBehaviour:
     against any melee attackers, dealing 2% of the base melee damage.
   effects: []
   buffs: 17000000
-  percentageManaCost: 0
+  percentagePowerCost: 0
   instantCast: 1
   secondsToCast: 0
   secondsToCooldown: 0
   singleTargetEffect: 0
+  powerType: 0
+  requiredRange: 0
 --- !u!114 &413752778
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -6607,11 +6617,13 @@ MonoBehaviour:
   - name: 4
     abilityPowerRange: {x: 380, y: 12}
   buffs: 
-  percentageManaCost: 15
+  percentagePowerCost: 0
   instantCast: 1
   secondsToCast: 0
   secondsToCooldown: 0
   singleTargetEffect: 0
+  powerType: 0
+  requiredRange: 0
 --- !u!114 &445300890
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -9216,11 +9228,13 @@ MonoBehaviour:
   - name: 2
     abilityPowerRange: {x: 130, y: 190}
   buffs: 
-  percentageManaCost: 13
+  percentagePowerCost: 0
   instantCast: 0
   secondsToCast: 2.5
   secondsToCooldown: 0
   singleTargetEffect: 1
+  powerType: 0
+  requiredRange: 0
 --- !u!114 &719306562
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -9411,11 +9425,13 @@ MonoBehaviour:
   - name: 0
     abilityPowerRange: {x: 75, y: 125}
   buffs: 
-  percentageManaCost: 8
+  percentagePowerCost: 0
   instantCast: 0
   secondsToCast: 1.5
   secondsToCooldown: 15
   singleTargetEffect: 1
+  powerType: 0
+  requiredRange: 0
 --- !u!114 &721970376
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -10239,11 +10255,13 @@ MonoBehaviour:
     10% damage reduction from all sources.
   effects: []
   buffs: 15000000
-  percentageManaCost: 0
+  percentagePowerCost: 0
   instantCast: 1
   secondsToCast: 0
   secondsToCooldown: 0
   singleTargetEffect: 0
+  powerType: 0
+  requiredRange: 0
 --- !u!114 &770308736
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -10350,11 +10368,13 @@ MonoBehaviour:
   description: Applies Ardent Defender buff.
   effects: []
   buffs: 0b000000
-  percentageManaCost: 0
+  percentagePowerCost: 0
   instantCast: 1
   secondsToCast: 0
   secondsToCooldown: 60
   singleTargetEffect: 1
+  powerType: 0
+  requiredRange: 0
 --- !u!114 &789279539
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -11427,11 +11447,13 @@ MonoBehaviour:
   - name: 1
     abilityPowerRange: {x: 20, y: 20}
   buffs: 
-  percentageManaCost: 5
+  percentagePowerCost: 0
   instantCast: 1
   secondsToCast: 0
   secondsToCooldown: 10
   singleTargetEffect: 0
+  powerType: 0
+  requiredRange: 0
 --- !u!114 &862896934
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -13446,11 +13468,13 @@ MonoBehaviour:
   - name: 5
     abilityPowerRange: {x: 100, y: 100}
   buffs: 08000000
-  percentageManaCost: 100
+  percentagePowerCost: 0
   instantCast: 1
   secondsToCast: 0
   secondsToCooldown: 600
   singleTargetEffect: 1
+  powerType: 0
+  requiredRange: 0
 --- !u!114 &1025724975
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -15923,11 +15947,13 @@ MonoBehaviour:
   - name: 6
     abilityPowerRange: {x: 100, y: 100}
   buffs: 0a000000
-  percentageManaCost: 15
+  percentagePowerCost: 0
   instantCast: 1
   secondsToCast: 0
   secondsToCooldown: 25
   singleTargetEffect: 1
+  powerType: 0
+  requiredRange: 0
 --- !u!114 &1169781483
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -16735,11 +16761,13 @@ MonoBehaviour:
   description: Gives target blessing of kings buff.
   effects: []
   buffs: 11000000
-  percentageManaCost: 5
+  percentagePowerCost: 0
   instantCast: 1
   secondsToCast: 0
   secondsToCooldown: 0
   singleTargetEffect: 1
+  powerType: 0
+  requiredRange: 0
 --- !u!114 &1224360147
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -17833,11 +17861,13 @@ MonoBehaviour:
     health by 2% each time they are hit.
   effects: []
   buffs: 0c000000
-  percentageManaCost: 0
+  percentagePowerCost: 0
   instantCast: 1
   secondsToCast: 0
   secondsToCooldown: 0
   singleTargetEffect: 1
+  powerType: 0
+  requiredRange: 0
 --- !u!114 &1276230118
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -18145,11 +18175,13 @@ MonoBehaviour:
     a 20% chance to heal the Paladin for 20% of caused damage.
   effects: []
   buffs: 13000000
-  percentageManaCost: 8
+  percentagePowerCost: 0
   instantCast: 1
   secondsToCast: 0
   secondsToCooldown: 0
   singleTargetEffect: 1
+  powerType: 0
+  requiredRange: 0
 --- !u!114 &1281009337
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -18770,11 +18802,13 @@ MonoBehaviour:
   - name: 0
     abilityPowerRange: {x: 20, y: 20}
   buffs: 0c0000000d0000000e000000
-  percentageManaCost: 3
+  percentagePowerCost: 0
   instantCast: 1
   secondsToCast: 0
   secondsToCooldown: 8
   singleTargetEffect: 1
+  powerType: 0
+  requiredRange: 0
 --- !u!114 &1318454045
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -20271,11 +20305,13 @@ MonoBehaviour:
   description: Stuns the target for 6 seconds.
   effects: []
   buffs: 07000000
-  percentageManaCost: 3.5
+  percentagePowerCost: 0
   instantCast: 1
   secondsToCast: 0
   secondsToCooldown: 60
   singleTargetEffect: 1
+  powerType: 0
+  requiredRange: 0
 --- !u!114 &1436510669
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -21918,11 +21954,13 @@ MonoBehaviour:
     their mana over time, providing 2% of their base mana every 5 seconds.
   effects: []
   buffs: 16000000
-  percentageManaCost: 0
+  percentagePowerCost: 0
   instantCast: 1
   secondsToCast: 0
   secondsToCooldown: 0
   singleTargetEffect: 0
+  powerType: 0
+  requiredRange: 0
 --- !u!114 &1638586803
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -22261,6 +22299,7 @@ GameObject:
   - component: {fileID: 1724469397}
   - component: {fileID: 1724469398}
   - component: {fileID: 1724469399}
+  - component: {fileID: 1724469400}
   m_Layer: 0
   m_Name: Myrmidon
   m_TagString: Enemy
@@ -22337,7 +22376,7 @@ CapsuleCollider2D:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1724469393}
-  m_Enabled: 0
+  m_Enabled: 1
   m_Density: 1
   m_Material: {fileID: 0}
   m_IsTrigger: 0
@@ -22358,7 +22397,7 @@ Rigidbody2D:
   m_Simulated: 1
   m_UseFullKinematicContacts: 0
   m_UseAutoMass: 1
-  m_Mass: 1
+  m_Mass: 2.4975963
   m_LinearDrag: 0
   m_AngularDrag: 0
   m_GravityScale: 0
@@ -22382,7 +22421,8 @@ MonoBehaviour:
   characterSprite: {fileID: 21300000, guid: c08c6ff2401df6846899122aaed97a3d, type: 3}
   attackTypes: 00000000
   startHealth: 600
-  startMana: 0
+  powerType: 0
+  startPower: 0
   startAttackSpeed: 2
   startAttackDamage: {x: 37, y: 51}
   startChanceToHit: 85
@@ -22391,7 +22431,7 @@ MonoBehaviour:
   startCriticalDamageMultiplier: 1.5
   startSpellCritChance: 0
   startSpellCriticalDamageMultiplier: 0
-  startManaRegen: []
+  startPowerRegen: []
 --- !u!58 &1724469399
 CircleCollider2D:
   m_ObjectHideFlags: 0
@@ -22408,6 +22448,21 @@ CircleCollider2D:
   m_Offset: {x: 0.14342046, y: -0.06930137}
   serializedVersion: 2
   m_Radius: 1.2970507
+--- !u!114 &1724469400
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1724469393}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 788ecbdc50e9e1247bab796ade8f386e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  meleeRange:
+    range: 0
+    collider: {fileID: 1724469399}
 --- !u!1001 &1732365221
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -22899,11 +22954,13 @@ MonoBehaviour:
   description: Gives target divine wisdom buff.
   effects: []
   buffs: 10000000
-  percentageManaCost: 5
+  percentagePowerCost: 0
   instantCast: 1
   secondsToCast: 0
   secondsToCooldown: 0
   singleTargetEffect: 1
+  powerType: 0
+  requiredRange: 0
 --- !u!114 &1798264870
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -25243,11 +25300,13 @@ MonoBehaviour:
   - name: 7
     abilityPowerRange: {x: 30, y: 30}
   buffs: 
-  percentageManaCost: 0
+  percentagePowerCost: 0
   instantCast: 1
   secondsToCast: 0
   secondsToCooldown: 30
   singleTargetEffect: 1
+  powerType: 0
+  requiredRange: 0
 --- !u!114 &2031166971
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -25659,11 +25718,13 @@ MonoBehaviour:
     restore their mana by 2% with each hit.
   effects: []
   buffs: 0e000000
-  percentageManaCost: 0
+  percentagePowerCost: 0
   instantCast: 1
   secondsToCast: 0
   secondsToCooldown: 0
   singleTargetEffect: 1
+  powerType: 0
+  requiredRange: 0
 --- !u!114 &2062853254
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -26064,11 +26125,13 @@ MonoBehaviour:
     melee attack additional damage equal to 15% of base damage.
   effects: []
   buffs: 12000000
-  percentageManaCost: 8
+  percentagePowerCost: 0
   instantCast: 1
   secondsToCast: 0
   secondsToCooldown: 0
   singleTargetEffect: 1
+  powerType: 0
+  requiredRange: 0
 --- !u!114 &2065990303
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -26209,6 +26272,8 @@ GameObject:
   - component: {fileID: 2073753732}
   - component: {fileID: 2073753731}
   - component: {fileID: 2073753733}
+  - component: {fileID: 2073753735}
+  - component: {fileID: 2073753734}
   m_Layer: 0
   m_Name: Isilion
   m_TagString: Player
@@ -26379,7 +26444,8 @@ MonoBehaviour:
   characterSprite: {fileID: 21300000, guid: d0f67a914418dde448a5f885a5c069ab, type: 3}
   attackTypes: 0000000001000000
   startHealth: 800
-  startMana: 500
+  powerType: 0
+  startPower: 500
   startAttackSpeed: 2.4
   startAttackDamage: {x: 37, y: 58}
   startChanceToHit: 87
@@ -26388,13 +26454,13 @@ MonoBehaviour:
   startCriticalDamageMultiplier: 1.5
   startSpellCritChance: 17
   startSpellCriticalDamageMultiplier: 1.7
-  startManaRegen:
+  startPowerRegen:
   - circumstance: 0
-    manaRegenAmount: 6
+    regenAmount: 6
   - circumstance: 1
-    manaRegenAmount: 15
+    regenAmount: 15
   - circumstance: 2
-    manaRegenAmount: 34
+    regenAmount: 34
 --- !u!58 &2073753731
 CircleCollider2D:
   m_ObjectHideFlags: 0
@@ -26423,6 +26489,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 788ecbdc50e9e1247bab796ade8f386e, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  meleeRange:
+    range: 0
+    collider: {fileID: 2073753731}
 --- !u!114 &2073753733
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -26460,6 +26529,45 @@ MonoBehaviour:
   - {fileID: 1224360144}
   - {fileID: 63862073}
   - {fileID: 1798264867}
+  abilityRanges:
+  - range: 0
+    collider: {fileID: 2073753731}
+  - range: 1
+    collider: {fileID: 2073753735}
+  - range: 2
+    collider: {fileID: 2073753734}
+--- !u!58 &2073753734
+CircleCollider2D:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2073753722}
+  m_Enabled: 1
+  m_Density: 1
+  m_Material: {fileID: 0}
+  m_IsTrigger: 1
+  m_UsedByEffector: 0
+  m_UsedByComposite: 0
+  m_Offset: {x: 0, y: 0.00000071525574}
+  serializedVersion: 2
+  m_Radius: 2.6445525
+--- !u!58 &2073753735
+CircleCollider2D:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2073753722}
+  m_Enabled: 1
+  m_Density: 1
+  m_Material: {fileID: 0}
+  m_IsTrigger: 1
+  m_UsedByEffector: 0
+  m_UsedByComposite: 0
+  m_Offset: {x: 0, y: 0.0076560974}
+  serializedVersion: 2
+  m_Radius: 1.7487946
 --- !u!1 &2085187683
 GameObject:
   m_ObjectHideFlags: 0
@@ -26602,11 +26710,13 @@ MonoBehaviour:
     eah attack a 10% chance to stun an enemy target for 2 seconds.
   effects: []
   buffs: 14000000
-  percentageManaCost: 8
+  percentagePowerCost: 0
   instantCast: 1
   secondsToCast: 0
   secondsToCooldown: 0
   singleTargetEffect: 1
+  powerType: 0
+  requiredRange: 0
 --- !u!114 &2085187689
 MonoBehaviour:
   m_ObjectHideFlags: 0

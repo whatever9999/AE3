@@ -13,9 +13,10 @@ public class CharacterState : MonoBehaviour
     //AttackTypes
     public AttackType[] attackTypes;
 
-    //Health and Mana
+    //Health and Power
     public int startHealth;
-    public int startMana;
+    public PowerTypes powerType;
+    public int startPower;
     
     //Attack chances and values
     public float startAttackSpeed;
@@ -34,7 +35,7 @@ public class CharacterState : MonoBehaviour
     public float startSpellCriticalDamageMultiplier;
 
     //Regen
-    public ManaRegen[] startManaRegen;
+    public PowerRegen[] startPowerRegen;
 
     /*
      * RuntimeData
@@ -42,9 +43,9 @@ public class CharacterState : MonoBehaviour
 
     //Health and Mana
     private int currentHealth;
-    private int currentMana;
+    private int currentPower;
     private int maxHealth;
-    private int maxMana;
+    private int maxPower;
 
     //Attack chances and values
     private float currentAttackSpeed;
@@ -83,10 +84,10 @@ public class CharacterState : MonoBehaviour
     public void setHealth(int newHealth) { currentHealth = newHealth; }
     public int getMaxHealth() { return maxHealth; }
     public void setMaxHealth(int newMaxHealth) { maxHealth = newMaxHealth; }
-    public int getMana() { return currentMana; }
-    public void setMana(int newMana) { currentMana = newMana; }
-    public int getMaxMana() { return maxMana; }
-    public void setMaxMana(int newMaxMana) { maxMana = newMaxMana; }
+    public int getPower() { return currentPower; }
+    public void setMana(int newMana) { currentPower = newMana; }
+    public int getMaxPower() { return maxPower; }
+    public void setMaxMana(int newMaxMana) { maxPower = newMaxMana; }
     public float getAttackSpeed() { return currentAttackSpeed; }
     public void setAttackSpeed(float newAttackSpeed) { 
         currentAttackSpeed = newAttackSpeed; 
@@ -127,7 +128,7 @@ public class CharacterState : MonoBehaviour
     private void InstantiateCharacter()
     {
         currentHealth = startHealth;
-        currentMana = startMana;
+        currentPower = startPower;
         currentAttackSpeed = startAttackSpeed;
         currentAttackDamage = startAttackDamage;
         currentChanceToHit = startChanceToHit;
@@ -138,7 +139,7 @@ public class CharacterState : MonoBehaviour
         currentSpellCriticalDamageMultiplier = startSpellCriticalDamageMultiplier;
 
         maxHealth = startHealth;
-        maxMana = startMana;
+        maxPower = startPower;
     }
 
     public void DealDamage(int damage)
@@ -176,14 +177,14 @@ public class CharacterState : MonoBehaviour
         }
     }
 
-    public void DepleteMana(float percentageOfMana)
+    public void DepletePower(float percentageOfPower)
     {
-        int manaToDeplete = (int)((maxMana / 100.0) * percentageOfMana);
-        currentMana -= manaToDeplete;
+        int powerToDeplete = (int)((maxPower / 100.0) * percentageOfPower);
+        currentPower -= powerToDeplete;
 
         if (tag.Equals("Player"))
         {
-            UIM.UpdatePlayerMana(currentMana, maxMana);
+            UIM.UpdatePlayerPower(currentPower, maxPower);
         }
         else if (tag.Equals("Enemy"))
         {
@@ -191,11 +192,11 @@ public class CharacterState : MonoBehaviour
             CharacterState targetOfTarget = playerTarget.getTarget();
             if (playerTarget == this)
             {
-                UIM.UpdateTargetMana(playerTarget.getMana(), playerTarget.getMaxMana());
+                UIM.UpdateTargetPower(playerTarget.getPower(), playerTarget.getMaxPower());
             }
             else if (targetOfTarget == this)
             {
-                UIM.UpdateTargetOfTargetMana(targetOfTarget.getMana(), targetOfTarget.getMaxMana());
+                UIM.UpdateTargetOfTargetPower(targetOfTarget.getPower(), targetOfTarget.getMaxPower());
             }
         }
     }
@@ -219,7 +220,7 @@ public enum AttackType
     SPELLS
 }
 
-public enum ManaRegenCircumstance
+public enum PowerRegenCircumstance
 {
     CASTING,
     NOTCASTING,
@@ -227,8 +228,15 @@ public enum ManaRegenCircumstance
 }
 
 [System.Serializable]
-public struct ManaRegen
+public struct PowerRegen
 {
-    public ManaRegenCircumstance circumstance;
-    public int manaRegenAmount;
+    public PowerRegenCircumstance circumstance;
+    public int regenAmount;
+}
+
+public enum PowerTypes
+{
+    MANA,
+    ENERGY,
+    RAGE
 }

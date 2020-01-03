@@ -9,6 +9,8 @@ public class PlayerAbilities : MonoBehaviour
 
     public GameObject[] abilityObjects;
 
+    public Range[] abilityRanges;
+
     private CharacterState CS;
     private Animator A;
 
@@ -42,7 +44,9 @@ public class PlayerAbilities : MonoBehaviour
 
     public void UseAbility(Ability a)
     {
-        if(!a.getCoolingDown() && a.getUseable())
+        bool inRange = CheckIfInRange(a.requiredRange);
+
+        if (!a.getCoolingDown() && a.getUseable() && inRange)
         {
             //Switch case ability effects and add buffs
             StartCoroutine(Cast(a));
@@ -50,6 +54,21 @@ public class PlayerAbilities : MonoBehaviour
         {
             //Player cannot use ability
         }
+    }
+
+    private bool CheckIfInRange(RangeType range)
+    {
+        bool inRange = false;
+
+        foreach (Range r in abilityRanges)
+        {
+            if(r.range == range)
+            {
+                inRange = r.collider.IsTouching(CS.getTarget().GetComponent<NormalAttack>().meleeRange.collider);
+            }
+        }
+
+        return inRange;
     }
 
     private IEnumerator Cast(Ability a)
@@ -100,8 +119,8 @@ public class PlayerAbilities : MonoBehaviour
             }
         }
 
-        //Deplete Mana
-        CS.DepleteMana(a.percentageManaCost);
+        //Deplete Power
+        CS.DepletePower(a.percentagePowerCost);
     }
 
     private IEnumerator AbilityTimer(int a, float seconds)

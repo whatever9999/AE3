@@ -285,7 +285,7 @@ public class UIManager : MonoBehaviour
     {
         playerImage.sprite = CS.characterSprite;
         UpdatePlayerHealth(CS.getHealth(), CS.getMaxHealth());
-        UpdatePlayerMana(CS.getMana(), CS.getMaxMana());
+        UpdatePlayerPower(CS.getPower(), CS.getMaxPower());
     }
 
     public void UpdatePlayerHealth(int currentHealth, int maxHealth)
@@ -296,7 +296,7 @@ public class UIManager : MonoBehaviour
         playerHealthText.text = currentHealth + "/" + maxHealth;
     }
 
-    public void UpdatePlayerMana(int currentMana, int maxMana)
+    public void UpdatePlayerPower(int currentMana, int maxMana)
     {
         float sliderValue = (float)currentMana / (float)maxMana;
         playerManaSlider.value = sliderValue;
@@ -311,11 +311,11 @@ public class UIManager : MonoBehaviour
 
         UpdateTargetHealth(CS.getHealth(), CS.getMaxHealth());
 
-        int targetMaxMana = CS.getMaxMana();
+        int targetMaxMana = CS.getMaxPower();
         if(targetMaxMana > 0)
         {
             targetManaSlider.gameObject.SetActive(true);
-            UpdateTargetMana(CS.getMana(), CS.getMaxMana());
+            UpdateTargetPower(CS.getPower(), CS.getMaxPower());
         } else
         {
             targetManaSlider.gameObject.SetActive(false);
@@ -325,7 +325,7 @@ public class UIManager : MonoBehaviour
     public void UpdateTarget(CharacterState CS)
     {
         UpdateTargetHealth(CS.getHealth(), CS.getMaxHealth());
-        UpdateTargetMana(CS.getMana(), CS.getMaxMana());
+        UpdateTargetPower(CS.getPower(), CS.getMaxPower());
     }
 
     public void UpdateTargetHealth(int currentHealth, int maxHealth)
@@ -336,7 +336,7 @@ public class UIManager : MonoBehaviour
         targetHealthText.text = currentHealth + "/" + maxHealth;
     }
 
-    public void UpdateTargetMana(int currentMana, int maxMana)
+    public void UpdateTargetPower(int currentMana, int maxMana)
     {
         float sliderValue = (float)currentMana / (float)maxMana;
         targetManaSlider.value = sliderValue;
@@ -351,11 +351,11 @@ public class UIManager : MonoBehaviour
 
         UpdateTargetOfTargetHealth(CS.getHealth(), CS.getMaxHealth());
 
-        int targetMaxMana = CS.getMaxMana();
+        int targetMaxMana = CS.getMaxPower();
         if (targetMaxMana > 0)
         {
             targetOfTargetManaSlider.gameObject.SetActive(true);
-            UpdateTargetOfTargetMana(CS.getMana(), CS.getMaxMana());
+            UpdateTargetOfTargetPower(CS.getPower(), CS.getMaxPower());
         }
         else
         {
@@ -366,7 +366,7 @@ public class UIManager : MonoBehaviour
     public void UpdateTargetOfTarget(CharacterState CS)
     {
         UpdateTargetOfTargetHealth(CS.getHealth(), CS.getMaxHealth());
-        UpdateTargetOfTargetMana(CS.getMana(), CS.getMaxMana());
+        UpdateTargetOfTargetPower(CS.getPower(), CS.getMaxPower());
     }
 
     public void UpdateTargetOfTargetHealth(int currentHealth, int maxHealth)
@@ -375,7 +375,7 @@ public class UIManager : MonoBehaviour
         targetOfTargetHealthSlider.value = sliderValue;
     }
 
-    public void UpdateTargetOfTargetMana(int currentMana, int maxMana)
+    public void UpdateTargetOfTargetPower(int currentMana, int maxMana)
     {
         float sliderValue = (float)currentMana / (float)maxMana;
         targetOfTargetManaSlider.value = sliderValue;
