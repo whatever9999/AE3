@@ -1,5 +1,6 @@
 ﻿using UnityEngine;
 using System.Collections.Generic;
+using UnityEngine.UI;
 
 public class CharacterState : MonoBehaviour
 {
@@ -117,9 +118,6 @@ public class CharacterState : MonoBehaviour
         if(tag.Equals("Player"))
         {
             UIM.UpdatePlayer(this);
-        } else
-        {
-            target = GameObject.Find("Isilion").GetComponent<CharacterState>();
         }
 
         A = GetComponent<Animator>();
@@ -142,9 +140,10 @@ public class CharacterState : MonoBehaviour
         maxPower = startPower;
     }
 
-    public void DealDamage(int damage)
+    public void DealDamage(int damage, UIManager.ResultType damageType)
     {
         currentHealth -= damage;
+        UIM.SpawnResultText(transform.position, damage, damageType);
 
         if(currentHealth <= 0)
         {
@@ -156,23 +155,21 @@ public class CharacterState : MonoBehaviour
             } else if(tag.Equals("Enemy"))
             {
                 A.SetBool("Dead", true);
+                tag = "Dead";
             }
         }
 
         if (tag.Equals("Player"))
         {
             UIM.UpdatePlayerHealth(currentHealth, maxHealth);
+            UIM.UpdateTargetOfTargetHealth(currentHealth, maxHealth);
         }
         else if (tag.Equals("Enemy"))
         {
             CharacterState playerTarget = PlayerAbilities.instance.GetPlayerCharacterState().getTarget();
-            CharacterState targetOfTarget = playerTarget.getTarget();
             if (playerTarget == this)
             {
                 UIM.UpdateTargetHealth(playerTarget.getHealth(), playerTarget.getMaxHealth());
-            } else if (targetOfTarget == this)
-            {
-                UIM.UpdateTargetOfTargetHealth(targetOfTarget.getHealth(), targetOfTarget.getMaxHealth());
             }
         }
     }

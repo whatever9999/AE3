@@ -23,6 +23,21 @@ public class NormalAttack : MonoBehaviour
     {
         CheckIfInRange();
 
+        try
+        {
+            if (CS.getTarget().tag == "Dead")
+            {
+                DisableCombat();
+                CS.setTarget(null);
+                UIManager.instance.ToggleTargetPanel(false);
+                UIManager.instance.ToggleTargetOfTargetPanel(false);
+            }
+        } catch (System.NullReferenceException e)
+        {
+            //There is no target
+        }
+        
+
         if (inRange && !isAttacking)
         {
             isAttacking = true;
@@ -92,7 +107,7 @@ public class NormalAttack : MonoBehaviour
             }
 
             //Deal Damage
-            CS.getTarget().DealDamage(damageToDeal);
+            CS.getTarget().DealDamage(damageToDeal, UIManager.ResultType.PHYSICALDAMAGE);
         } else
         {
             //Hit failed

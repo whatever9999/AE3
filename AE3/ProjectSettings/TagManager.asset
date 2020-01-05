@@ -10,6 +10,8 @@ TagManager:
   - CharacterImage
   - Buff
   - TargetBuffOrDebuff
+  - Block
+  - Dead
   layers:
   - Default
   - TransparentFX

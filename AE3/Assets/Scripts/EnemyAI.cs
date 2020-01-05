@@ -22,10 +22,10 @@ public class EnemyAI : MonoBehaviour
     private void Update()
     {
         if (aggroRange.collider.IsTouching(playerCollider)) {
+            CS.setTarget(PlayerAbilities.instance.GetPlayerCharacterState());
+            UIManager.instance.UpdateTargetOfTarget(PlayerAbilities.instance.GetPlayerCharacterState());
+            UIManager.instance.ToggleTargetOfTargetPanel(true);
             NA.EnableCombat();
-        } else
-        {
-            NA.DisableCombat();
         }
     }
 }

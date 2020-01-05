@@ -9,6 +9,13 @@ public class UIManager : MonoBehaviour
     public AbilityGroup[] abilityGroups;
     public AbilityGroup[] subAbilityGroups;
 
+    //Text above character heads
+    public ResultText[] resultTexts;
+    public float distanceFromCharacterTransform;
+    public float secondsResultTextOnScreen = 2;
+    public float resultTextSpeed = 1;
+    private static Canvas canvas;
+
     private bool abilityPanelOpen = false;
     private AbilityGroupName activeAbilityGroup = AbilityGroupName.Retribution;
     private GameObject activeSubAbilityPanel;
@@ -155,6 +162,8 @@ public class UIManager : MonoBehaviour
         targetCastbarText = targetCastbarAndText.GetComponentInChildren<Text>();
 
         dragDistance = Screen.height * ScreenPercentageForSwipe / 100; //dragDistance is N% height of the screen
+
+        canvas = GetComponent<Canvas>();
     }
 
     private void Update()
@@ -217,6 +226,52 @@ public class UIManager : MonoBehaviour
         {
             secondsAbilityButtonHeld += Time.deltaTime;
         }
+    }
+
+    public void SpawnResultText(Vector3 transformPosition, int value, ResultType resultType)
+    {
+        foreach(ResultText rt in resultTexts)
+        {
+            if(!rt.inUse)
+            {
+                Vector3 spawnPosition = transformPosition;
+                spawnPosition.y += distanceFromCharacterTransform;
+                rt.text.transform.position = RectTransformUtility.WorldToScreenPoint(Camera.main, spawnPosition);
+
+                switch (resultType)
+                {
+                    case ResultType.PHYSICALDAMAGE:
+                        rt.text.text = "<color=white>" + value + "</color>";
+                        break;
+                    case ResultType.HEALING:
+                        rt.text.text = "<color=green>" + value + "</color>";
+                        break;
+                    case ResultType.MAGICALDAMAGE:
+                        rt.text.text = "<color=yellow>" + value + "</color>";
+                        break;
+                    default:
+                        break;
+                }
+
+                rt.inUse = true;
+                StartCoroutine(ResultTextDisappear(rt));
+                break;
+            }
+        }
+    }
+
+    private IEnumerator ResultTextDisappear(ResultText resultText)
+    {
+        for(float i = 0; i < secondsResultTextOnScreen; i += 0.01f)
+        {
+            yield return new WaitForSeconds(0.01f);
+            Vector3 newPosition = resultText.text.transform.position;
+            newPosition.y += Time.deltaTime * resultTextSpeed;
+            resultText.text.transform.position = newPosition;
+        }
+
+        resultText.text.text = "";
+        resultText.inUse = false;
     }
 
     public void ToggleTargetPanel(bool to)
@@ -477,4 +532,19 @@ public class UIManager : MonoBehaviour
             return s + "s";
         }
     }
+
+    public enum ResultType
+    {
+        PHYSICALDAMAGE,
+        HEALING,
+        MAGICALDAMAGE
+    }
+}
+
+[System.Serializable] 
+public class ResultText
+{
+    public Text text;
+    [HideInInspector]
+    public bool inUse = false;
 }

@@ -121,7 +121,7 @@ public class PlayerAbilities : MonoBehaviour
             {
                 case AbilityEffectName.BaseDamage:
                     int damageToDeal = Random.Range((int)e.abilityPowerRange[0], (int)e.abilityPowerRange[1]);
-                    CS.getTarget().DealDamage(damageToDeal);
+                    CS.getTarget().DealDamage(damageToDeal, UIManager.ResultType.MAGICALDAMAGE);
                     break;
                 case AbilityEffectName.HealByDamageCaused:
                     break;
