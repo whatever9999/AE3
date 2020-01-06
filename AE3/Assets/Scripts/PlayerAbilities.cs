@@ -61,7 +61,8 @@ public class PlayerAbilities : MonoBehaviour
     {
         bool inRange = CheckIfInRange(a.requiredRange);
 
-        if (!a.getCoolingDown() && a.getUseable() && inRange)
+        //If the ability isn't on cooldown, the player has enough mana to use it, the target is in range and it is intended for use on the current target or has no target then it will be cast
+        if (!a.getCoolingDown() && a.getUseable() && inRange && (CS.getTarget().tag == a.targetTag || a.targetTag == ""))
         {
             //Switch case ability effects and add buffs
             StartCoroutine(Cast(a));
@@ -83,6 +84,11 @@ public class PlayerAbilities : MonoBehaviour
             }
         }
 
+        if(CS.getTarget() == CS)
+        {
+            inRange = true;
+        }
+
         return inRange;
     }
 
@@ -95,6 +101,7 @@ public class PlayerAbilities : MonoBehaviour
         {
             ps.Play();
         }
+        SFXManager.instance.PlayEffect(SoundEffectNames.SPELLCASTING, a.secondsToCast);
         yield return new WaitForSeconds(a.secondsToCast);
         foreach (ParticleSystem ps in spellcastingEffect)
         {
@@ -119,15 +126,20 @@ public class PlayerAbilities : MonoBehaviour
         {
             switch (e.name)
             {
-                case AbilityEffectName.BaseDamage:
-                    int damageToDeal = Random.Range((int)e.abilityPowerRange[0], (int)e.abilityPowerRange[1]);
-                    CS.getTarget().DealDamage(damageToDeal, UIManager.ResultType.MAGICALDAMAGE);
+                case AbilityEffectName.PercentageOfPhysicalDamage:
+                    //Deal a random percentage of a random amount of physical damage
+                    int damageToDeal = (int)(Random.Range(e.abilityPowerRange[0], e.abilityPowerRange[1]) * (Random.Range(CS.startAttackDamage[0], CS.startAttackDamage[0]) / 100));
+                    CS.getTarget().HitCritAndResult(damageToDeal, UIManager.ResultType.PHYSICALDAMAGE);
                     break;
                 case AbilityEffectName.HealByDamageCaused:
                     break;
                 case AbilityEffectName.HealTargetByAmount:
+                    int amountToHeal = Random.Range((int)e.abilityPowerRange[0], (int)e.abilityPowerRange[1]);
+                    CS.getTarget().HitCritAndResult(amountToHeal, UIManager.ResultType.HEALING);
                     break;
-                case AbilityEffectName.DamageTargetByAmount:
+                case AbilityEffectName.MagicalDamageInRange:
+                    //Deal a random amount of magical damage between two amounts
+                    CS.getTarget().HitCritAndResult((int)(Random.Range(e.abilityPowerRange[0], e.abilityPowerRange[1])), UIManager.ResultType.MAGICALDAMAGE);
                     break;
                 case AbilityEffectName.ConcecrateLand:
                     break;
@@ -140,6 +152,12 @@ public class PlayerAbilities : MonoBehaviour
                 default:
                     break;
             }
+        }
+
+        //Add buffs
+        foreach(GameObject go in a.buffs)
+        {
+            CS.getTarget().AddBuff(go.GetComponent<Buff>());
         }
 
         //Deplete Power

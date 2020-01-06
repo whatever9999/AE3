@@ -77,6 +77,9 @@ public class UIManager : MonoBehaviour
     private Slider targetCastbar;
     private Text targetCastbarText;
 
+    //Sound Effects
+    SFXManager SFXM;
+
     private void Start()
     {
         instance = this;
@@ -164,6 +167,8 @@ public class UIManager : MonoBehaviour
         dragDistance = Screen.height * ScreenPercentageForSwipe / 100; //dragDistance is N% height of the screen
 
         canvas = GetComponent<Canvas>();
+
+        SFXM = SFXManager.instance;
     }
 
     private void Update()
@@ -287,7 +292,7 @@ public class UIManager : MonoBehaviour
 
     public void ChangeAbilityPanel(AbilityGroupName panelToOpen)
     {
-        if(abilityPanelOpen && activeAbilityGroup != panelToOpen)
+        if (abilityPanelOpen && activeAbilityGroup != panelToOpen)
         {
             foreach (AbilityGroup ag in abilityGroups)
             {
@@ -302,6 +307,11 @@ public class UIManager : MonoBehaviour
             }
 
             activeAbilityGroup = panelToOpen;
+
+            foreach (AbilityGroup ag in subAbilityGroups)
+            {
+                ag.abilityPanel.SetActive(false);
+            }
         }
     }
 
@@ -499,6 +509,7 @@ public class UIManager : MonoBehaviour
 
     public void AbilityButtonDown()
     {
+        SFXM.PlayEffect(SoundEffectNames.BUTTON);
         abilityButtonHeld = true;
     }
 

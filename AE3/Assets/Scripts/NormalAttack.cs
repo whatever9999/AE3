@@ -21,32 +21,37 @@ public class NormalAttack : MonoBehaviour
 
     private void Update()
     {
-        CheckIfInRange();
-
-        try
+        if(combatMode)
         {
-            if (CS.getTarget().tag == "Dead")
+            CheckIfInRange();
+
+            try
             {
-                DisableCombat();
-                CS.setTarget(null);
-                UIManager.instance.ToggleTargetPanel(false);
-                UIManager.instance.ToggleTargetOfTargetPanel(false);
+                if (CS.getTarget().tag == "Dead")
+                {
+                    DisableCombat();
+                    CS.setTarget(null);
+                    UIManager.instance.ToggleTargetPanel(false);
+                    UIManager.instance.ToggleTargetOfTargetPanel(false);
+                }
             }
-        } catch (System.NullReferenceException e)
-        {
-            //There is no target
-        }
-        
+            catch (System.NullReferenceException e)
+            {
+                //There is no target
+            }
 
-        if (inRange && !isAttacking)
-        {
-            isAttacking = true;
-            StartCoroutine(Attack());
+
+            if (inRange && !isAttacking)
+            {
+                isAttacking = true;
+                StartCoroutine(Attack());
+            }
         }
     }
 
     public void NormalAttackButton()
     {
+        SFXManager.instance.PlayEffect(SoundEffectNames.BUTTON);
         combatMode = !combatMode;
         A.SetBool("AttackMode", combatMode);
     }
@@ -89,6 +94,7 @@ public class NormalAttack : MonoBehaviour
         isAttacking = false;
     }
 
+    //Use the normal melee attack effects to deal damage
     public void AttackEvent()
     {
         //Successful hit?
@@ -108,9 +114,10 @@ public class NormalAttack : MonoBehaviour
 
             //Deal Damage
             CS.getTarget().DealDamage(damageToDeal, UIManager.ResultType.PHYSICALDAMAGE);
+            SFXManager.instance.PlayEffect(SoundEffectNames.ATTACK);
         } else
         {
-            //Hit failed
+            SFXManager.instance.PlayEffect(SoundEffectNames.WHOOSH);
         }
     }
 }

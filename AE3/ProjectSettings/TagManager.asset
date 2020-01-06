@@ -12,6 +12,8 @@ TagManager:
   - TargetBuffOrDebuff
   - Block
   - Dead
+  - PlayerCollider
+  - EnemyCollider
   layers:
   - Default
   - TransparentFX

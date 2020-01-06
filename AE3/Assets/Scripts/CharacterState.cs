@@ -140,6 +140,51 @@ public class CharacterState : MonoBehaviour
         maxPower = startPower;
     }
 
+    public void HitCritAndResult(int amount, UIManager.ResultType resultType)
+    {
+        switch (resultType)
+        {
+            case UIManager.ResultType.PHYSICALDAMAGE:
+                //Critical hit
+                float rand = Random.Range(0, 100);
+                if (rand <= currentchanceToCrit)
+                {
+                    amount = (int)(amount * currentCriticalDamageMultiplier);
+                }
+
+                //Deal Damage
+                DealDamage(amount, UIManager.ResultType.PHYSICALDAMAGE);
+                SFXManager.instance.PlayEffect(SoundEffectNames.ATTACK);
+                break;
+            case UIManager.ResultType.HEALING:
+                //Critical hit
+                rand = Random.Range(0, 100);
+                if (rand <= currentSpellCritChance)
+                {
+                    amount = (int)(amount * currentSpellCriticalDamageMultiplier);
+                }
+
+                //Deal Damage
+                Heal(amount);
+                SFXManager.instance.PlayEffect(SoundEffectNames.SPELLCASTEND);
+                break;
+            case UIManager.ResultType.MAGICALDAMAGE:
+                //Critical hit
+                rand = Random.Range(0, 100);
+                if (rand <= currentSpellCritChance)
+                {
+                    amount = (int)(amount * currentSpellCriticalDamageMultiplier);
+                }
+
+                //Deal Damage
+                DealDamage(amount, UIManager.ResultType.MAGICALDAMAGE);
+                SFXManager.instance.PlayEffect(SoundEffectNames.SPELLCASTEND);
+                break;
+            default:
+                break;
+        }
+    }
+
     public void DealDamage(int damage, UIManager.ResultType damageType)
     {
         currentHealth -= damage;
@@ -157,6 +202,31 @@ public class CharacterState : MonoBehaviour
                 A.SetBool("Dead", true);
                 tag = "Dead";
             }
+        }
+
+        if (tag.Equals("Player"))
+        {
+            UIM.UpdatePlayerHealth(currentHealth, maxHealth);
+            UIM.UpdateTargetOfTargetHealth(currentHealth, maxHealth);
+        }
+        else if (tag.Equals("Enemy"))
+        {
+            CharacterState playerTarget = PlayerAbilities.instance.GetPlayerCharacterState().getTarget();
+            if (playerTarget == this)
+            {
+                UIM.UpdateTargetHealth(playerTarget.getHealth(), playerTarget.getMaxHealth());
+            }
+        }
+    }
+
+    public void Heal(int amount)
+    {
+        currentHealth += amount;
+        UIM.SpawnResultText(transform.position, amount, UIManager.ResultType.HEALING);
+
+        if (currentHealth >= maxHealth)
+        {
+            currentHealth = maxHealth;
         }
 
         if (tag.Equals("Player"))
@@ -208,7 +278,10 @@ public class CharacterState : MonoBehaviour
         currentBuffs.Remove(b);
     }
 
-    
+    public void Footstep()
+    {
+        SFXManager.instance.PlayEffect(SoundEffectNames.FOOTSTEP);
+    }
 }
 
 public enum AttackType

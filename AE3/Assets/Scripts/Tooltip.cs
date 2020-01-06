@@ -56,6 +56,7 @@ public class Tooltip : MonoBehaviour
 
     public void RemoveBuff()
     {
+        SFXManager.instance.PlayEffect(SoundEffectNames.BUTTON);
         activeBH.DeactivateBuff(activeBuff);
         CloseTooltip();
     }
@@ -129,6 +130,7 @@ public class Tooltip : MonoBehaviour
 
     public void CloseTooltip()
     {
+        SFXManager.instance.PlayEffect(SoundEffectNames.BUTTON);
         gameObject.SetActive(false);
         activeBH = null;
         activeBuff = null;

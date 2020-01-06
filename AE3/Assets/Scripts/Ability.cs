@@ -49,10 +49,10 @@ public enum AbilityGroupName
 
 public enum AbilityEffectName
 {
-    BaseDamage,
+    PercentageOfPhysicalDamage,
     HealByDamageCaused,
     HealTargetByAmount,
-    DamageTargetByAmount,
+    MagicalDamageInRange,
     ConcecrateLand,
     HealToMax,
     BreakFreeOfEffects,
@@ -66,7 +66,7 @@ public class Ability : MonoBehaviour
     public new AbilityName name;
     public string description;
     public AbilityEffect[] effects;
-    public BuffName[] buffs;
+    public GameObject[] buffs;
     public float percentagePowerCost;
     public bool instantCast;
     public float secondsToCast;
@@ -74,6 +74,7 @@ public class Ability : MonoBehaviour
     public bool singleTargetEffect;
     public PowerTypes powerType;
     public RangeType requiredRange;
+    public string targetTag;
 
     private Image tint;
     private Text timer;
@@ -147,7 +148,7 @@ public class Ability : MonoBehaviour
         //If in range and affordable
         int manaCost = (int)((CS.getMaxPower() / 100.0) * percentagePowerCost);
 
-        if(CS.getPower() >= manaCost && !coolingDown)
+        if(CS.getPower() >= manaCost && !coolingDown && (CS.getTarget().tag == targetTag || targetTag == ""))
         {
             useable = true;
         } else

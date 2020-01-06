@@ -24,10 +24,10 @@ public class PlayerTargeting : MonoBehaviour
 
                 if (Hit)
                 {
-                    if (Hit.transform.tag.Equals("Player") || Hit.transform.tag.Equals("Enemy"))
+                    if (Hit.transform.tag.Equals("PlayerCollider") || Hit.transform.tag.Equals("EnemyCollider"))
                     {
                         CharacterState currentTarget = GetComponent<CharacterState>().getTarget();
-                        CharacterState targetCS = Hit.transform.GetComponent<CharacterState>();
+                        CharacterState targetCS = Hit.GetComponentInParent<CharacterState>();
                         if (currentTarget != null && currentTarget.tag.Equals(targetCS.tag))
                         {
                             GetComponent<CharacterState>().setTarget(null);
@@ -41,7 +41,7 @@ public class PlayerTargeting : MonoBehaviour
                             UIM.SetTarget(targetCS);
                             if (targetCS.tag.Equals("Enemy") && targetCS.getTarget() != null)
                             {
-                                UIM.SetTargetOfTarget(targetCS.getTarget());
+                                UIM.ToggleTargetOfTargetPanel(true);
                             }
                             else
                             {
