@@ -3,11 +3,18 @@ using UnityStandardAssets.CrossPlatformInput;
 
 public class PlayerMovement : MonoBehaviour
 {
-    public float moveSpeed = 5;
+    public float startMoveSpeed = 5;
     public RuntimeAnimatorController topAnimator;
     public RuntimeAnimatorController bottomAnimator;
     public Sprite topIdle;
     public Sprite bottomIdle;
+
+    private float currentMoveSpeed;
+    public void SetMoveSpeed(float newSpeed)
+    {
+        currentMoveSpeed = newSpeed;
+    }
+    public float GetMoveSpeed() { return currentMoveSpeed; }
 
     private Rigidbody2D RB;
     private Animator A;
@@ -34,7 +41,7 @@ public class PlayerMovement : MonoBehaviour
             MoveVec = MoveVec.normalized;
         }
 
-        RB.velocity = MoveVec * moveSpeed;
+        RB.velocity = MoveVec * startMoveSpeed;
     }
 
     private void Update()

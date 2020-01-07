@@ -385,6 +385,21 @@ public class UIManager : MonoBehaviour
         {
             targetManaSlider.gameObject.SetActive(false);
         }
+
+        //Update ability panels when target is changed
+        foreach(AbilityGroup ag in abilityGroups)
+        {
+            if(activeAbilityGroup == ag.abilityGroupName)
+            {
+                ag.abilityPanel.SetActive(false);
+                ag.abilityPanel.SetActive(true);
+            }
+        }
+        if(activeSubAbilityPanel != null)
+        {
+            activeSubAbilityPanel.SetActive(false);
+            activeSubAbilityPanel.SetActive(true);
+        }
     }
 
     public void UpdateTarget(CharacterState CS)

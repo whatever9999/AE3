@@ -7,6 +7,7 @@ public class NormalAttack : MonoBehaviour
     public Range meleeRange;
 
     private bool combatMode = false;
+    public bool GetCombatMode() { return combatMode; }
     private bool isAttacking = false;
     private bool inRange = false;
 
@@ -35,7 +36,7 @@ public class NormalAttack : MonoBehaviour
                     UIManager.instance.ToggleTargetOfTargetPanel(false);
                 }
             }
-            catch (System.NullReferenceException e)
+            catch
             {
                 //There is no target
             }
@@ -53,11 +54,19 @@ public class NormalAttack : MonoBehaviour
     {
         SFXManager.instance.PlayEffect(SoundEffectNames.BUTTON);
         combatMode = !combatMode;
+        if(combatMode)
+        {
+            CS.setActiveRegen(PowerRegenCircumstance.NOTCASTING);
+        } else
+        {
+            CS.setActiveRegen(PowerRegenCircumstance.NOTINCOMBAT);
+        }
         A.SetBool("AttackMode", combatMode);
     }
 
     public void DisableCombat()
     {
+        CS.setActiveRegen(PowerRegenCircumstance.NOTINCOMBAT);
         combatMode = false;
         inRange = false;
         A.SetBool("AttackMode", combatMode);
@@ -65,6 +74,7 @@ public class NormalAttack : MonoBehaviour
 
     public void EnableCombat()
     {
+        CS.setActiveRegen(PowerRegenCircumstance.NOTCASTING);
         combatMode = true;
         A.SetBool("AttackMode", combatMode);
     }
@@ -87,10 +97,13 @@ public class NormalAttack : MonoBehaviour
     private IEnumerator Attack()
     {
         float currentAttackSpeed = CS.getAttackSpeed();
-        A.speed = 1 / currentAttackSpeed;
-        A.SetTrigger("Attack");
-        yield return new WaitForSeconds(currentAttackSpeed);
-        A.speed = 1;
+        if(currentAttackSpeed != 0)
+        {
+            A.speed = 1 / currentAttackSpeed;
+            A.SetTrigger("Attack");
+            yield return new WaitForSeconds(currentAttackSpeed);
+            A.speed = 1;
+        }
         isAttacking = false;
     }
 
@@ -115,6 +128,11 @@ public class NormalAttack : MonoBehaviour
             //Deal Damage
             CS.getTarget().DealDamage(damageToDeal, UIManager.ResultType.PHYSICALDAMAGE);
             SFXManager.instance.PlayEffect(SoundEffectNames.ATTACK);
+
+            //Account for buffs on the enemy
+            if (tag.Equals("Player")) {
+                PlayerAbilities.instance.CheckEffects();
+            }
         } else
         {
             SFXManager.instance.PlayEffect(SoundEffectNames.WHOOSH);

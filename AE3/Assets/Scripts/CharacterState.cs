@@ -37,6 +37,16 @@ public class CharacterState : MonoBehaviour
 
     //Regen
     public PowerRegen[] startPowerRegen;
+    private PowerRegen[] currentPowerRegen;
+    private PowerRegenCircumstance activeRegen = PowerRegenCircumstance.NOTINCOMBAT;
+    public void changeRegenPower(float percentageOfCurrent) { 
+        for(int i = 0; i < currentPowerRegen.Length; i++)
+        {
+            currentPowerRegen[i].regenAmount = (int)((currentPowerRegen[i].regenAmount / 100) * percentageOfCurrent);
+        }
+    }
+    private float currentRegenInterval = 0;
+    public float regenInterval = 5;
 
     /*
      * RuntimeData
@@ -64,19 +74,18 @@ public class CharacterState : MonoBehaviour
     private int currentSpellCritChance;
     private float currentSpellCriticalDamageMultiplier;
 
-    //Casting
-    private bool casting;
-    private float timeToCast;
-    private float timeCasting;
-
     //Buffs
     private List<Buff> currentBuffs = new List<Buff>();
+    public List<Buff> GetCurrentBuffs() { return currentBuffs; }
 
     //Targeting
     private CharacterState target;
 
     //Animation
     private Animator A;
+
+    //Realtime Effects
+    private float percentageHealthRestoredToAttacker = 0;
 
     #region GettersAndSetters
     public CharacterState getTarget() { return target; }
@@ -91,8 +100,7 @@ public class CharacterState : MonoBehaviour
     public void setMaxMana(int newMaxMana) { maxPower = newMaxMana; }
     public float getAttackSpeed() { return currentAttackSpeed; }
     public void setAttackSpeed(float newAttackSpeed) { 
-        currentAttackSpeed = newAttackSpeed; 
-        //Set animation speed
+        currentAttackSpeed = newAttackSpeed;
     }
     public int getChanceToHit() { return currentChanceToHit; }
     public void setChanceToHit(int newChanceToHit) { currentChanceToHit = newChanceToHit; }
@@ -102,6 +110,10 @@ public class CharacterState : MonoBehaviour
     public void setChanceToCrit(int newChanceToCrit) { currentchanceToCrit = newChanceToCrit; }
     public float getCritDamageMultiplier() { return currentCriticalDamageMultiplier; }
     public void setCritDamageMultiplier(float newCriticalDamageMultiplier) { currentCriticalDamageMultiplier = newCriticalDamageMultiplier; }
+    public float getPercentageHealthRestoredToAttacker() { return percentageHealthRestoredToAttacker; }
+    public void setPercentageHealthRestoredToAttacker(float newPercentage) { percentageHealthRestoredToAttacker = newPercentage; }
+    public void setActiveRegen(PowerRegenCircumstance newRegen) { activeRegen = newRegen; }
+    
 #endregion
 
     /*
@@ -123,6 +135,47 @@ public class CharacterState : MonoBehaviour
         A = GetComponent<Animator>();
     }
 
+    private void Update()
+    {
+        if(maxPower != 0 && currentPower != maxPower)
+        {
+            if(currentRegenInterval > regenInterval)
+            {
+                foreach (PowerRegen pr in currentPowerRegen)
+                {
+                    if (activeRegen == pr.circumstance)
+                    {
+                        currentPower += pr.regenAmount;
+
+                        if(currentPower > maxPower)
+                        {
+                            currentPower = maxPower;
+                        }
+
+                        if (tag.Equals("Player"))
+                        {
+                            UIM.UpdatePlayerPower(currentPower, maxPower);
+                            UIM.UpdateTargetOfTargetPower(currentPower, maxPower);
+                        }
+                        else if (tag.Equals("Enemy"))
+                        {
+                            CharacterState playerTarget = PlayerAbilities.instance.GetPlayerCharacterState().getTarget();
+                            if (playerTarget == this)
+                            {
+                                UIM.UpdateTargetPower(playerTarget.getPower(), playerTarget.getMaxPower());
+                            }
+                        }
+
+                        currentRegenInterval = 0;
+                        break;
+                    }
+                }
+            }
+
+            currentRegenInterval += Time.deltaTime;
+        }
+    }
+
     private void InstantiateCharacter()
     {
         currentHealth = startHealth;
@@ -135,12 +188,13 @@ public class CharacterState : MonoBehaviour
         currentCriticalDamageMultiplier = startCriticalDamageMultiplier;
         currentSpellCritChance = startSpellCritChance;
         currentSpellCriticalDamageMultiplier = startSpellCriticalDamageMultiplier;
+        currentPowerRegen = startPowerRegen;
 
         maxHealth = startHealth;
         maxPower = startPower;
     }
 
-    public void HitCritAndResult(int amount, UIManager.ResultType resultType)
+    public int HitCritAndResult(int amount, UIManager.ResultType resultType)
     {
         switch (resultType)
         {
@@ -183,6 +237,8 @@ public class CharacterState : MonoBehaviour
             default:
                 break;
         }
+
+        return amount;
     }
 
     public void DealDamage(int damage, UIManager.ResultType damageType)
@@ -252,25 +308,38 @@ public class CharacterState : MonoBehaviour
         if (tag.Equals("Player"))
         {
             UIM.UpdatePlayerPower(currentPower, maxPower);
+            UIM.UpdateTargetOfTargetPower(currentPower, maxPower);
         }
         else if (tag.Equals("Enemy"))
         {
             CharacterState playerTarget = PlayerAbilities.instance.GetPlayerCharacterState().getTarget();
-            CharacterState targetOfTarget = playerTarget.getTarget();
             if (playerTarget == this)
             {
                 UIM.UpdateTargetPower(playerTarget.getPower(), playerTarget.getMaxPower());
-            }
-            else if (targetOfTarget == this)
-            {
-                UIM.UpdateTargetOfTargetPower(targetOfTarget.getPower(), targetOfTarget.getMaxPower());
             }
         }
     }
 
     public void AddBuff(Buff b)
     {
-        currentBuffs.Add(b);
+        bool notAlreadyInUse = true;
+
+        foreach(Buff currentB in currentBuffs)
+        {
+            if(b.name == currentB.name)
+            {
+                notAlreadyInUse = false;
+            } else if((b.name == BuffName.JudgementOfRighteousness || b.name == BuffName.JudgementOfWeakness || b.name == BuffName.JudgementOfWisdom) && (currentB.name == BuffName.JudgementOfRighteousness || currentB.name == BuffName.JudgementOfWeakness || currentB.name == BuffName.JudgementOfWisdom))
+            {
+                currentB.GetBuffHandler().DeactivateBuff(currentB);
+                break;
+            }
+        }
+
+        if (notAlreadyInUse)
+        {
+            currentBuffs.Add(b);
+        }
     }
 
     public void RemoveBuff(Buff b)

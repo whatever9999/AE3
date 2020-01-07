@@ -13,12 +13,15 @@ public class PlayerAbilities : MonoBehaviour
 
     private CharacterState CS;
     private Animator A;
+    private NormalAttack NA;
 
     private ParticleSystem endSpellcastingEffect;
     private ParticleSystem[] spellcastingEffect;
 
     private Ability[] abilities;
     private Text[] abilityTexts;
+
+    private Buff[] targetBuffs;
 
     public CharacterState GetPlayerCharacterState() { return CS; }
 
@@ -28,6 +31,7 @@ public class PlayerAbilities : MonoBehaviour
 
         CS = GetComponent<CharacterState>();
         A = GetComponent<Animator>();
+        NA = GetComponent<NormalAttack>();
 
         ParticleSystem[] effects = GetComponentsInChildren<ParticleSystem>();
 
@@ -48,6 +52,9 @@ public class PlayerAbilities : MonoBehaviour
 
     private void Start()
     {
+        targetBuffs = GameObject.Find("TargetBuffPanel").GetComponent<BuffHandler>().GetPossibleBuffs();
+        GameObject.Find("Target").SetActive(false);
+
         abilityTexts = new Text[abilityObjects.Length];
         abilities = new Ability[abilityObjects.Length];
         for (int i = 0; i < abilityObjects.Length; i++)
@@ -59,7 +66,11 @@ public class PlayerAbilities : MonoBehaviour
 
     public void UseAbility(Ability a)
     {
-        bool inRange = CheckIfInRange(a.requiredRange);
+        bool inRange = true;
+        if (a.targetTag != "")
+        {
+            inRange = CheckIfInRange(a.requiredRange);
+        }
 
         //If the ability isn't on cooldown, the player has enough mana to use it, the target is in range and it is intended for use on the current target or has no target then it will be cast
         if (!a.getCoolingDown() && a.getUseable() && inRange && (CS.getTarget().tag == a.targetTag || a.targetTag == ""))
@@ -95,20 +106,47 @@ public class PlayerAbilities : MonoBehaviour
     private IEnumerator Cast(Ability a)
     {
         //Casting animation and castbar
-        A.SetBool("Casting", true);
-        UIManager.instance.SetPlayerCastbar(a.name.ToString(), a.secondsToCast);
-        foreach(ParticleSystem ps in spellcastingEffect)
+        //Instant casts are treated as melee attacks
+        if (!a.instantCast)
         {
-            ps.Play();
-        }
-        SFXManager.instance.PlayEffect(SoundEffectNames.SPELLCASTING, a.secondsToCast);
-        yield return new WaitForSeconds(a.secondsToCast);
-        foreach (ParticleSystem ps in spellcastingEffect)
+            CS.setActiveRegen(PowerRegenCircumstance.CASTING);
+            A.SetBool("Casting", true);
+            UIManager.instance.SetPlayerCastbar(a.name.ToString(), a.secondsToCast);
+            foreach (ParticleSystem ps in spellcastingEffect)
+            {
+                ps.Play();
+            }
+            SFXManager.instance.PlayEffect(SoundEffectNames.SPELLCASTING, a.secondsToCast);
+            yield return new WaitForSeconds(a.secondsToCast);
+            foreach (ParticleSystem ps in spellcastingEffect)
+            {
+                ps.Stop();
+            }
+            A.SetBool("Casting", false);
+            CS.setActiveRegen(PowerRegenCircumstance.NOTCASTING);
+            endSpellcastingEffect.Play();
+        } else
         {
-            ps.Stop();
+            //Instant cast abilities
+            //If target isn't self and combat mode isn't enabled enable combat mode
+            //Treat as melee attack if target isn't self
+            //Spell if target is self
+            if (!a.targetTag.Equals(tag) && !a.targetTag.Equals("") && !NA.GetCombatMode())
+            {
+                NA.EnableCombat();
+                SFXManager.instance.PlayEffect(SoundEffectNames.ATTACK);
+            }
+            else if (!a.targetTag.Equals(tag) && !a.targetTag.Equals(""))
+            {
+                SFXManager.instance.PlayEffect(SoundEffectNames.ATTACK);
+            }
+            else
+            {
+                SFXManager.instance.PlayEffect(SoundEffectNames.SPELLCASTEND);
+            }
+            endSpellcastingEffect.Play();
         }
-        A.SetBool("Casting", false);
-        endSpellcastingEffect.Play();
+        
 
         //Update UI and start timer
         for (int i = 0; i < abilities.Length; i++)
@@ -120,7 +158,10 @@ public class PlayerAbilities : MonoBehaviour
                 StartCoroutine(AbilityTimer(i, a.secondsToCooldown));
             }
         }
-        
+
+        int damageCaused = 0;
+        bool spellEffectsOccured = true;
+
         //Effects
         foreach (AbilityEffect e in a.effects)
         {
@@ -129,9 +170,10 @@ public class PlayerAbilities : MonoBehaviour
                 case AbilityEffectName.PercentageOfPhysicalDamage:
                     //Deal a random percentage of a random amount of physical damage
                     int damageToDeal = (int)(Random.Range(e.abilityPowerRange[0], e.abilityPowerRange[1]) * (Random.Range(CS.startAttackDamage[0], CS.startAttackDamage[0]) / 100));
-                    CS.getTarget().HitCritAndResult(damageToDeal, UIManager.ResultType.PHYSICALDAMAGE);
+                    damageCaused = CS.getTarget().HitCritAndResult(damageToDeal, UIManager.ResultType.PHYSICALDAMAGE);
                     break;
-                case AbilityEffectName.HealByDamageCaused:
+                case AbilityEffectName.HealByPercentageOfDamageCaused:
+                    CS.Heal((int)((damageCaused / 100.0) * Random.Range(e.abilityPowerRange[0], e.abilityPowerRange[1])));
                     break;
                 case AbilityEffectName.HealTargetByAmount:
                     int amountToHeal = Random.Range((int)e.abilityPowerRange[0], (int)e.abilityPowerRange[1]);
@@ -149,19 +191,60 @@ public class PlayerAbilities : MonoBehaviour
                     break;
                 case AbilityEffectName.HealForPercentageOfMissingHealth:
                     break;
-                default:
+                case AbilityEffectName.UseJudgement:
+                    foreach (Buff b in CS.GetCurrentBuffs())
+                    {
+                        if(b.name == BuffName.JudgementOfRighteousness || b.name == BuffName.JudgementOfWisdom || b.name == BuffName.JudgementOfWeakness)
+                        {
+                            foreach(Buff targetB in targetBuffs)
+                            {
+                                if(b.name == targetB.name)
+                                {
+                                    targetB.GetBuffHandler().ActivateBuff(targetB);
+                                    break;
+                                }
+                            }
+                            break;
+                        }
+                        else
+                        { 
+                            spellEffectsOccured = false; 
+                        }
+                    }
+                    break;
+                case AbilityEffectName.PercentageOfPhysicalDamageAsMagical:
+                    //Deal a random percentage of a random amount of physical damage
+                    damageToDeal = (int)(Random.Range(e.abilityPowerRange[0], e.abilityPowerRange[1]) * (Random.Range(CS.startAttackDamage[0], CS.startAttackDamage[0]) / 100));
+                    CS.getTarget().DealDamage(damageToDeal, UIManager.ResultType.MAGICALDAMAGE);
                     break;
             }
         }
 
+        //For example, if enemy has a debuff that restores health to its attacker
+        CheckEffects();
+
         //Add buffs
         foreach(GameObject go in a.buffs)
         {
-            CS.getTarget().AddBuff(go.GetComponent<Buff>());
+            Buff thisBuff = go.GetComponent<Buff>();
+            thisBuff.GetBuffHandler().ActivateBuff(thisBuff);
         }
 
         //Deplete Power
-        CS.DepletePower(a.percentagePowerCost);
+        if (spellEffectsOccured)
+        {
+            CS.DepletePower(a.percentagePowerCost);
+        }
+    }
+
+    public void CheckEffects()
+    {
+        int healthToRestore = (int)((CS.getMaxHealth() / 100) * CS.getTarget().getPercentageHealthRestoredToAttacker());
+
+        if (healthToRestore != 0)
+        {
+            CS.Heal(healthToRestore);
+        }
     }
 
     private IEnumerator AbilityTimer(int a, float seconds)

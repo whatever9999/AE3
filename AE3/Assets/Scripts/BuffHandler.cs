@@ -10,6 +10,7 @@ public class BuffHandler : MonoBehaviour
     public PlayerMovement PM;
 
     private Buff[] possibleBuffs;
+    public Buff[] GetPossibleBuffs() { return possibleBuffs; }
     private Text[] buffTexts;
 
     private void Start()
@@ -21,24 +22,29 @@ public class BuffHandler : MonoBehaviour
             buffTexts[i] = possibleBuffObjects[i].GetComponentInChildren<Text>();
             possibleBuffs[i] = possibleBuffObjects[i].GetComponent<Buff>();
             possibleBuffs[i].SetBuffHandler(this);
+
+            //Ensure that initial auras, judgements, blessings and seals are active
         }
     }
 
-    private void ActivateBuff(Buff b)
+    public void ActivateBuff(Buff b)
     {
         foreach (BuffEffect be in b.effects)
         {
             switch (be.buffEffectName)
             {
                 case BuffEffectName.SlowMovement:
-                    PM.moveSpeed *= (be.buffPower / 100.0f);
+                    PM.startMoveSpeed *= (be.buffPower / 100.0f);
                     break;
                 case BuffEffectName.SlowAttack:
                     CS.setAttackSpeed(CS.getAttackSpeed() * (be.buffPower / 100.0f));
                     break;
                 case BuffEffectName.Stun:
                     CS.setAttackSpeed(0);
-                    PM.moveSpeed = 0;
+                    if (PM != null)
+                    {
+                        PM.SetMoveSpeed(0);
+                    }
                     break;
                 case BuffEffectName.DeflectDamage:
                     break;
@@ -57,6 +63,7 @@ public class BuffHandler : MonoBehaviour
                 case BuffEffectName.ReduceDamageGiven:
                     break;
                 case BuffEffectName.RestoreHealthToAttacker:
+                    CS.setPercentageHealthRestoredToAttacker(be.buffPower);
                     break;
                 case BuffEffectName.RestoreManaToAttacker:
                     break;
@@ -88,6 +95,7 @@ public class BuffHandler : MonoBehaviour
                 if(b.infiniteLength != true)
                 {
                     StartCoroutine(BuffTimer(i, b.lengthInSeconds));
+                    break;
                 } else
                 {
                     ActivateBuffIcon(i);
@@ -103,12 +111,17 @@ public class BuffHandler : MonoBehaviour
             switch (be.buffEffectName)
             {
                 case BuffEffectName.SlowMovement:
-                    PM.moveSpeed /= (be.buffPower / 100.0f);
+                    PM.startMoveSpeed /= (be.buffPower / 100.0f);
                     break;
                 case BuffEffectName.SlowAttack:
                     CS.setAttackSpeed(CS.getAttackSpeed() / (be.buffPower / 100.0f));
                     break;
                 case BuffEffectName.Stun:
+                    CS.setAttackSpeed(CS.startAttackSpeed);
+                    if (PM != null)
+                    {
+                        PM.SetMoveSpeed(PM.startMoveSpeed);
+                    }
                     break;
                 case BuffEffectName.DeflectDamage:
                     break;
@@ -127,6 +140,7 @@ public class BuffHandler : MonoBehaviour
                 case BuffEffectName.ReduceDamageGiven:
                     break;
                 case BuffEffectName.RestoreHealthToAttacker:
+                    CS.setPercentageHealthRestoredToAttacker(CS.getPercentageHealthRestoredToAttacker() - be.buffPower);
                     break;
                 case BuffEffectName.RestoreManaToAttacker:
                     break;

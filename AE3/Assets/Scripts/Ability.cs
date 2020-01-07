@@ -50,13 +50,15 @@ public enum AbilityGroupName
 public enum AbilityEffectName
 {
     PercentageOfPhysicalDamage,
-    HealByDamageCaused,
+    HealByPercentageOfDamageCaused,
     HealTargetByAmount,
     MagicalDamageInRange,
     ConcecrateLand,
     HealToMax,
     BreakFreeOfEffects,
     HealForPercentageOfMissingHealth,
+    UseJudgement,
+    PercentageOfPhysicalDamageAsMagical
 }
 
 [System.Serializable]
