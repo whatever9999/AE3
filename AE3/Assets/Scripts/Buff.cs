@@ -68,12 +68,15 @@ public enum BuffEffectName
     IncreaseCritChance,
     IncreaseMaxHeath,
     IncreaseMaxMana,
-    ReduceMeleeDamage,
+    ReduceMeleeDamageByPercentage,
     IncreaseBaseWeaponDamage,
     AdditionalDamageForSingleTargetAttack,
     ChanceToStun,
     RecoverManaByPercentage,
-    AttackAttackers
+    AttackAttackers,
+    DevotionAura,
+    MagicalAura,
+    RetributionAura
 }
 
 [System.Serializable]

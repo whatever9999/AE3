@@ -9,11 +9,14 @@ public class PlayerAbilities : MonoBehaviour
 
     public GameObject[] abilityObjects;
 
+    public GameObject concecrationPrefab;
+
     public Range[] abilityRanges;
 
     private CharacterState CS;
     private Animator A;
     private NormalAttack NA;
+    private PlayerMovement PM;
 
     private ParticleSystem endSpellcastingEffect;
     private ParticleSystem[] spellcastingEffect;
@@ -22,6 +25,8 @@ public class PlayerAbilities : MonoBehaviour
     private Text[] abilityTexts;
 
     private Buff[] targetBuffs;
+
+    private bool casting = false;
 
     public CharacterState GetPlayerCharacterState() { return CS; }
 
@@ -32,6 +37,7 @@ public class PlayerAbilities : MonoBehaviour
         CS = GetComponent<CharacterState>();
         A = GetComponent<Animator>();
         NA = GetComponent<NormalAttack>();
+        PM = GetComponent<PlayerMovement>();
 
         ParticleSystem[] effects = GetComponentsInChildren<ParticleSystem>();
 
@@ -73,7 +79,7 @@ public class PlayerAbilities : MonoBehaviour
         }
 
         //If the ability isn't on cooldown, the player has enough mana to use it, the target is in range and it is intended for use on the current target or has no target then it will be cast
-        if (!a.getCoolingDown() && a.getUseable() && inRange && (CS.getTarget().tag == a.targetTag || a.targetTag == ""))
+        if (!a.getCoolingDown() && a.getUseable() && inRange && (CS.getTarget().tag == a.targetTag || a.targetTag == "") && !casting)
         {
             //Switch case ability effects and add buffs
             StartCoroutine(Cast(a));
@@ -109,6 +115,7 @@ public class PlayerAbilities : MonoBehaviour
         //Instant casts are treated as melee attacks
         if (!a.instantCast)
         {
+            casting = true;
             CS.setActiveRegen(PowerRegenCircumstance.CASTING);
             A.SetBool("Casting", true);
             UIManager.instance.SetPlayerCastbar(a.name.ToString(), a.secondsToCast);
@@ -125,6 +132,7 @@ public class PlayerAbilities : MonoBehaviour
             A.SetBool("Casting", false);
             CS.setActiveRegen(PowerRegenCircumstance.NOTCASTING);
             endSpellcastingEffect.Play();
+            casting = false;
         } else
         {
             //Instant cast abilities
@@ -184,12 +192,43 @@ public class PlayerAbilities : MonoBehaviour
                     CS.getTarget().HitCritAndResult((int)(Random.Range(e.abilityPowerRange[0], e.abilityPowerRange[1])), UIManager.ResultType.MAGICALDAMAGE);
                     break;
                 case AbilityEffectName.ConcecrateLand:
+                    Concecration thisConcecration = Instantiate(concecrationPrefab, transform).GetComponent<Concecration>();
+                    thisConcecration.transform.parent = null;
                     break;
                 case AbilityEffectName.HealToMax:
+                    foreach(Buff b in CS.GetCurrentBuffs())
+                    {
+                        if(b.name == BuffName.Forbearance)
+                        {
+                            spellEffectsOccured = false;
+                        }
+                    }
+
+                    if(spellEffectsOccured)
+                    {
+                        amountToHeal = CS.getMaxHealth() - CS.getCurrentHealth();
+                        CS.Heal(amountToHeal);
+                    }
                     break;
-                case AbilityEffectName.BreakFreeOfEffects:
+                case AbilityEffectName.RemoveStunAndSlow:
+                    foreach(Buff b in CS.GetCurrentBuffs())
+                    {
+                        foreach (BuffEffect be in b.effects)
+                        {
+                            if(be.buffEffectName == BuffEffectName.Stun)
+                            {
+                                b.GetBuffHandler().DeactivateBuff(b);
+                            }
+                        }
+                    }
+                    if(PM.GetMoveSpeed() < PM.startMoveSpeed)
+                    {
+                        PM.SetMoveSpeed(PM.startMoveSpeed);
+                    }
                     break;
                 case AbilityEffectName.HealForPercentageOfMissingHealth:
+                    int healAmount = (int)((CS.getMaxHealth() - CS.getCurrentHealth()) / 100.0 * Random.Range(e.abilityPowerRange[0], e.abilityPowerRange[1]));
+                    CS.Heal(healAmount);
                     break;
                 case AbilityEffectName.UseJudgement:
                     foreach (Buff b in CS.GetCurrentBuffs())
@@ -217,6 +256,17 @@ public class PlayerAbilities : MonoBehaviour
                     damageToDeal = (int)(Random.Range(e.abilityPowerRange[0], e.abilityPowerRange[1]) * (Random.Range(CS.startAttackDamage[0], CS.startAttackDamage[0]) / 100));
                     CS.getTarget().DealDamage(damageToDeal, UIManager.ResultType.MAGICALDAMAGE);
                     break;
+                case AbilityEffectName.HealTargetByAmountWithDoubleCrit:
+                    amountToHeal = Random.Range((int)e.abilityPowerRange[0], (int)e.abilityPowerRange[1]);
+                    int rand = Random.Range(0, 100);
+                    if (rand <= CS.getSpellChanceToCrit())
+                    {
+                        amountToHeal *= 2;
+                    }
+
+                    //Deal Damage
+                    CS.Heal(amountToHeal);
+                    break;
             }
         }
 
@@ -224,9 +274,9 @@ public class PlayerAbilities : MonoBehaviour
         CheckEffects();
 
         //Add buffs
-        foreach(GameObject go in a.buffs)
+        if(a.buff != null)
         {
-            Buff thisBuff = go.GetComponent<Buff>();
+            Buff thisBuff = a.buff.GetComponent<Buff>();
             thisBuff.GetBuffHandler().ActivateBuff(thisBuff);
         }
 
@@ -234,16 +284,60 @@ public class PlayerAbilities : MonoBehaviour
         if (spellEffectsOccured)
         {
             CS.DepletePower(a.percentagePowerCost);
+
+            UpdateAbilityColours();
         }
     }
 
     public void CheckEffects()
     {
         int healthToRestore = (int)((CS.getMaxHealth() / 100) * CS.getTarget().getPercentageHealthRestoredToAttacker());
+        int powerToRestore = (int)((CS.getMaxPower() / 100) * CS.getTarget().getPercentagePowerRestoredToAttacker());
 
         if (healthToRestore != 0)
         {
-            CS.Heal(healthToRestore);
+            foreach (Buff b in CS.getTarget().GetCurrentBuffs())
+            {
+                if (b.name == BuffName.JudgementOfRighteousness || b.name == BuffName.JudgementOfWisdom || b.name == BuffName.JudgementOfWeakness)
+                {
+                    int rand = Random.Range(0, 100);
+
+                    if (rand < b.chance)
+                    {
+                        CS.Heal(healthToRestore);
+                    }
+                }
+            }
+        }
+
+        if(powerToRestore != 0)
+        {
+            foreach (Buff b in CS.getTarget().GetCurrentBuffs())
+            {
+                if (b.name == BuffName.JudgementOfRighteousness || b.name == BuffName.JudgementOfWisdom || b.name == BuffName.JudgementOfWeakness)
+                {
+                    int rand = Random.Range(0, 100);
+
+                    if (rand < b.chance)
+                    {
+                        CS.IncreasePower(powerToRestore);
+
+                        UpdateAbilityColours();
+                    }
+                }
+            }
+        }
+    }
+
+    public void UpdateAbilityColours()
+    {
+        //Update UI to reflect change in power
+        foreach (Ability thisA in abilities)
+        {
+            if (thisA.GetSetupComplete())
+            {
+                thisA.UpdateAbilityColour();
+            }
         }
     }
 

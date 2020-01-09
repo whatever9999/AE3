@@ -55,10 +55,11 @@ public enum AbilityEffectName
     MagicalDamageInRange,
     ConcecrateLand,
     HealToMax,
-    BreakFreeOfEffects,
+    RemoveStunAndSlow,
     HealForPercentageOfMissingHealth,
     UseJudgement,
-    PercentageOfPhysicalDamageAsMagical
+    PercentageOfPhysicalDamageAsMagical,
+    HealTargetByAmountWithDoubleCrit
 }
 
 [System.Serializable]
@@ -68,7 +69,7 @@ public class Ability : MonoBehaviour
     public new AbilityName name;
     public string description;
     public AbilityEffect[] effects;
-    public GameObject[] buffs;
+    public GameObject buff;
     public float percentagePowerCost;
     public bool instantCast;
     public float secondsToCast;
@@ -82,6 +83,7 @@ public class Ability : MonoBehaviour
     private Text timer;
 
     private bool setupComplete = false;
+    public bool GetSetupComplete() { return setupComplete; }
     private bool useable = true;
     private bool coolingDown = false;
     public void setCoolingDown(bool changeTo) { coolingDown = changeTo; }
@@ -121,6 +123,8 @@ public class Ability : MonoBehaviour
 
             blackTint = Color.black;
             blackTint.a = 0.5f;
+
+            setupComplete = true;
         }
 
         UpdateAbilityColour();

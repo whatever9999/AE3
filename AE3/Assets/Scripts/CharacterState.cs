@@ -86,6 +86,11 @@ public class CharacterState : MonoBehaviour
 
     //Realtime Effects
     private float percentageHealthRestoredToAttacker = 0;
+    private float percentagePowerRestoredToAttacker = 0;
+    private bool immuneToAllDamage;
+    private bool immuneToStun;
+    private bool immuneToSlow;
+    private float allDamageReduction = 0;
 
     #region GettersAndSetters
     public CharacterState getTarget() { return target; }
@@ -94,6 +99,8 @@ public class CharacterState : MonoBehaviour
     public void setHealth(int newHealth) { currentHealth = newHealth; }
     public int getMaxHealth() { return maxHealth; }
     public void setMaxHealth(int newMaxHealth) { maxHealth = newMaxHealth; }
+    public int getCurrentHealth() { return currentHealth; }
+    public void setCurrentHealth(int newHealth) { currentHealth = newHealth; }
     public int getPower() { return currentPower; }
     public void setMana(int newMana) { currentPower = newMana; }
     public int getMaxPower() { return maxPower; }
@@ -105,21 +112,33 @@ public class CharacterState : MonoBehaviour
     public int getChanceToHit() { return currentChanceToHit; }
     public void setChanceToHit(int newChanceToHit) { currentChanceToHit = newChanceToHit; }
     public Vector2 getAttackDamage() { return currentAttackDamage; }
-    public void setAttackDamage(Vector2 newAttackDamage) { currentAttackDamage = newAttackDamage; }
+    public void setAttackDamage(Vector2 newAttackDamage) { print(currentAttackDamage);  currentAttackDamage = newAttackDamage; print(currentAttackDamage); }
     public int getChanceToCrit() { return currentchanceToCrit; }
     public void setChanceToCrit(int newChanceToCrit) { currentchanceToCrit = newChanceToCrit; }
+    public int getSpellChanceToCrit() { return currentSpellCritChance; }
+    public void setSpellChanceToCrit(int newChanceToCrit) { currentSpellCritChance = newChanceToCrit; }
     public float getCritDamageMultiplier() { return currentCriticalDamageMultiplier; }
     public void setCritDamageMultiplier(float newCriticalDamageMultiplier) { currentCriticalDamageMultiplier = newCriticalDamageMultiplier; }
     public float getPercentageHealthRestoredToAttacker() { return percentageHealthRestoredToAttacker; }
     public void setPercentageHealthRestoredToAttacker(float newPercentage) { percentageHealthRestoredToAttacker = newPercentage; }
     public void setActiveRegen(PowerRegenCircumstance newRegen) { activeRegen = newRegen; }
-    
-#endregion
+    public float getPercentagePowerRestoredToAttacker() { return percentagePowerRestoredToAttacker; }
+    public void setPercentagePowerRestoredToAttacker(float newPower) { percentagePowerRestoredToAttacker = newPower; }
+    public void setImmunity(bool newImmunity) { immuneToAllDamage = newImmunity; }
+    public void setImmunityToStun(bool newImmunity) { immuneToStun = newImmunity; }
+    public bool getImmunityToStun() { return immuneToStun; }
+    public void setImmunityToSlow(bool newImmunity) { immuneToSlow = newImmunity; }
+    public bool getImmunityToSlow() { return immuneToSlow; }
+    public void setAllDamageReduction(float percentage) { allDamageReduction = percentage; }
+    public float getAllDamageReduction() { return allDamageReduction; }
+
+    #endregion
 
     /*
      * Other variables
      */
     private UIManager UIM;
+    private PlayerAbilities PA;
 
     private void Start()
     {
@@ -133,6 +152,10 @@ public class CharacterState : MonoBehaviour
         }
 
         A = GetComponent<Animator>();
+        if (tag == "Player")
+        {
+            PA = GetComponent<PlayerAbilities>();
+        }
     }
 
     private void Update()
@@ -167,6 +190,8 @@ public class CharacterState : MonoBehaviour
                         }
 
                         currentRegenInterval = 0;
+
+                        PA.UpdateAbilityColours();
                         break;
                     }
                 }
@@ -243,34 +268,48 @@ public class CharacterState : MonoBehaviour
 
     public void DealDamage(int damage, UIManager.ResultType damageType)
     {
-        currentHealth -= damage;
-        UIM.SpawnResultText(transform.position, damage, damageType);
-
-        if(currentHealth <= 0)
+        if(!immuneToAllDamage)
         {
-            currentHealth = 0;
-            if(tag.Equals("Player"))
+            //Apply damage reduction
+            if (damageType == UIManager.ResultType.PHYSICALDAMAGE)
             {
-                A.SetBool("Dead", true);
-                //End Game
-            } else if(tag.Equals("Enemy"))
-            {
-                A.SetBool("Dead", true);
-                tag = "Dead";
+                damage = (int)((damage / 100.0) * (100 - allDamageReduction - currentPhysicalDamageReduction));
             }
-        }
-
-        if (tag.Equals("Player"))
-        {
-            UIM.UpdatePlayerHealth(currentHealth, maxHealth);
-            UIM.UpdateTargetOfTargetHealth(currentHealth, maxHealth);
-        }
-        else if (tag.Equals("Enemy"))
-        {
-            CharacterState playerTarget = PlayerAbilities.instance.GetPlayerCharacterState().getTarget();
-            if (playerTarget == this)
+            else
             {
-                UIM.UpdateTargetHealth(playerTarget.getHealth(), playerTarget.getMaxHealth());
+                damage = (int)((damage / 100.0) * (100 - allDamageReduction));
+            }
+
+            currentHealth -= damage;
+            UIM.SpawnResultText(transform.position, damage, damageType);
+
+            if (currentHealth <= 0)
+            {
+                currentHealth = 0;
+                if (tag.Equals("Player"))
+                {
+                    A.SetBool("Dead", true);
+                    //End Game
+                }
+                else if (tag.Equals("Enemy"))
+                {
+                    A.SetBool("Dead", true);
+                    tag = "Dead";
+                }
+            }
+
+            if (tag.Equals("Player"))
+            {
+                UIM.UpdatePlayerHealth(currentHealth, maxHealth);
+                UIM.UpdateTargetOfTargetHealth(currentHealth, maxHealth);
+            }
+            else if (tag.Equals("Enemy") || tag.Equals("Dead"))
+            {
+                CharacterState playerTarget = PlayerAbilities.instance.GetPlayerCharacterState().getTarget();
+                if (playerTarget == this)
+                {
+                    UIM.UpdateTargetHealth(playerTarget.getHealth(), playerTarget.getMaxHealth());
+                }
             }
         }
     }
@@ -304,6 +343,31 @@ public class CharacterState : MonoBehaviour
     {
         int powerToDeplete = (int)((maxPower / 100.0) * percentageOfPower);
         currentPower -= powerToDeplete;
+
+        if (tag.Equals("Player"))
+        {
+            UIM.UpdatePlayerPower(currentPower, maxPower);
+            UIM.UpdateTargetOfTargetPower(currentPower, maxPower);
+        }
+        else if (tag.Equals("Enemy"))
+        {
+            CharacterState playerTarget = PlayerAbilities.instance.GetPlayerCharacterState().getTarget();
+            if (playerTarget == this)
+            {
+                UIM.UpdateTargetPower(playerTarget.getPower(), playerTarget.getMaxPower());
+            }
+        }
+    }
+
+    public void IncreasePower(float percentageOfPower)
+    {
+        int powerToIncrease = (int)((maxPower / 100.0) * percentageOfPower);
+        currentPower += powerToIncrease;
+
+        if(currentPower > maxPower)
+        {
+            currentPower = maxPower;
+        }
 
         if (tag.Equals("Player"))
         {
