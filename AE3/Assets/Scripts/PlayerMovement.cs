@@ -15,7 +15,6 @@ public class PlayerMovement : MonoBehaviour
         if(!CS.getImmunityToSlow() || newSpeed >= currentMoveSpeed)
         {
             currentMoveSpeed = newSpeed;
-            print(currentMoveSpeed);
         }
     }
     public float GetMoveSpeed() { return currentMoveSpeed; }
@@ -37,15 +36,18 @@ public class PlayerMovement : MonoBehaviour
 
     private void FixedUpdate()
     {
-        Vector3 MoveVec = new Vector2(CrossPlatformInputManager.GetAxis("Horizontal"), CrossPlatformInputManager.GetAxis("Vertical"));
-
-        //Prevent player from moving faster on diagonals
-        if (MoveVec.magnitude > 1)
+        if (!A.GetBool("Dead"))
         {
-            MoveVec = MoveVec.normalized;
-        }
+            Vector3 MoveVec = new Vector2(CrossPlatformInputManager.GetAxis("Horizontal"), CrossPlatformInputManager.GetAxis("Vertical"));
 
-        RB.velocity = MoveVec * currentMoveSpeed;
+            //Prevent player from moving faster on diagonals
+            if (MoveVec.magnitude > 1)
+            {
+                MoveVec = MoveVec.normalized;
+            }
+
+            RB.velocity = MoveVec * currentMoveSpeed;
+        }
     }
 
     private void Update()

@@ -13,62 +13,52 @@ public class Aura : MonoBehaviour
     private void Start()
     {
         playersInAura = new List<CharacterState>();
+        playersInAura.Add(transform.parent.GetComponent<CharacterState>());
     }
 
     public void SetAura(AuraName newAura)
     {
-        //Get rid of previous aura effect
-        foreach(CharacterState cs in playersInAura)
+        //Get aura effects;
+        Effect[] currentAuraEffects = null;
+        Effect[] newAuraEffects = null;
+        foreach (AuraType a in auras)
         {
-            switch (currentAura)
+            if(a.name == currentAura)
             {
-                case AuraName.DEVOTION:
-
-                    break;
-                case AuraName.MAGICAL:
-
-                    break;
-                case AuraName.RETRIBUTION:
-
-                    break;
-                default:
-                    break;
+                currentAuraEffects = a.effects;
+            } else if (a.name == newAura)
+            {
+                newAuraEffects = a.effects;
             }
         }
 
-        switch (newAura)
+        //Get rid of previous aura effect and change to new effect
+        foreach (CharacterState cs in playersInAura)
         {
-            case AuraName.DEVOTION:
+            PlayerMovement thisPM = cs.GetComponent<PlayerMovement>();
 
-                break;
-            case AuraName.MAGICAL:
-
-                break;
-            case AuraName.RETRIBUTION:
-
-                break;
-            default:
-                break;
+            if (currentAuraEffects != null)
+            {
+                foreach (Effect e in currentAuraEffects)
+                {
+                    e.DeactivateEffect(cs, thisPM, null);
+                }
+            }
+            
+            if(newAuraEffects != null)
+            {
+                foreach (Effect e in newAuraEffects)
+                {
+                    e.ActivateEffect(cs, thisPM, null);
+                }
+            }
         }
+
+        //Update aura
+        currentAura = newAura;
     }
 
-    private void TriggerEffect(CharacterState cs)
-    {
-        switch (currentAura)
-        {
-            case AuraName.DEVOTION:
-
-                break;
-            case AuraName.MAGICAL:
-
-                break;
-            case AuraName.RETRIBUTION:
-
-                break;
-            default:
-                break;
-        }
-    }
+    
 
     private void Update()
     {
@@ -101,7 +91,17 @@ public class Aura : MonoBehaviour
                 playersInAura.Add(thisCharacter);
             }
 
-            TriggerEffect(thisCharacter);
+            foreach(AuraType a in auras)
+            {
+                if(a.name == currentAura)
+                {
+                    PlayerMovement thisPM = thisCharacter.GetComponent<PlayerMovement>();
+                    foreach(Effect e in a.effects)
+                    {
+                        e.ActivateEffect(thisCharacter, thisPM, null);
+                    }
+                }
+            }
         }
     }
 
@@ -109,7 +109,20 @@ public class Aura : MonoBehaviour
     {
         if (collision.tag.Equals("Player"))
         {
-            playersInAura.Remove(collision.GetComponent<CharacterState>());
+            CharacterState thisCharacter = collision.GetComponent<CharacterState>();
+            playersInAura.Remove(thisCharacter);
+
+            foreach (AuraType a in auras)
+            {
+                if (a.name == currentAura)
+                {
+                    PlayerMovement thisPM = thisCharacter.GetComponent<PlayerMovement>();
+                    foreach (Effect e in a.effects)
+                    {
+                        e.ActivateEffect(thisCharacter, thisPM, null);
+                    }
+                }
+            }
         }
     }
 }
@@ -126,6 +139,6 @@ public enum AuraName
 public struct AuraType
 {
     public AuraName name;
-    public BuffEffect[] auraEffects;
+    public Effect[] effects;
 
 }

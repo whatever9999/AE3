@@ -1,6 +1,7 @@
 ﻿using UnityEngine;
 using System.Collections;
 using UnityEngine.UI;
+using System.Collections.Generic;
 
 public class BuffHandler : MonoBehaviour
 {
@@ -8,17 +9,14 @@ public class BuffHandler : MonoBehaviour
 
     public CharacterState CS;
     public PlayerMovement PM;
-
-    private Aura aura;
+    public EnemyAI EAI;
 
     private Buff[] possibleBuffs;
     public Buff[] GetPossibleBuffs() { return possibleBuffs; }
     private Text[] buffTexts;
 
-    private void Start()
+    private void Awake()
     {
-        aura = GetComponentInChildren<Aura>();
-
         buffTexts = new Text[possibleBuffObjects.Length];
         possibleBuffs = new Buff[possibleBuffObjects.Length];
         for(int i = 0; i < possibleBuffObjects.Length; i++)
@@ -31,98 +29,47 @@ public class BuffHandler : MonoBehaviour
         }
     }
 
+    public void UpdateBuffs()
+    {
+        List<Buff> characterBuffs = CS.GetCurrentBuffs();
+
+        for (int i = 0; i < possibleBuffObjects.Length; i++)
+        {
+            GameObject possibleGO = possibleBuffObjects[i];
+            Buff possibleB = possibleBuffs[i];
+            if (possibleGO.activeInHierarchy && !characterBuffs.Contains(possibleB))
+            {
+                possibleGO.SetActive(false);
+            } else if(!possibleGO.activeInHierarchy && characterBuffs.Contains(possibleB))
+            {
+                possibleGO.SetActive(true);
+            }
+        }
+    }
+
     public void ActivateBuff(Buff b)
     {
         bool buffAvailable = true;
 
         foreach(Buff currentB in CS.GetCurrentBuffs())
         {
-            if(currentB.name == b.name)
+            if (b.name == currentB.name && (b.name == BuffName.JudgementOfRighteousness || b.name == BuffName.JudgementOfWeakness || b.name == BuffName.JudgementOfWisdom || b.name == BuffName.DevotionAura || b.name == BuffName.MagicalAura || b.name == BuffName.RetributionAura || b.name == BuffName.SealOfJustice || b.name == BuffName.SealOfLight || b.name == BuffName.SealOfRighteousness || b.name == BuffName.BlessingOfKings || b.name == BuffName.DivineStrength || b.name == BuffName.DivineWisdom))
             {
                 buffAvailable = false;
+                DeactivateBuff(b);
+                break;
+            } else if (b.name == currentB.name)
+            {
+                buffAvailable = false;
+                break;
             }
         }
 
         if(buffAvailable)
         {
-            foreach (BuffEffect be in b.effects)
+            foreach (Effect e in b.effects)
             {
-                switch (be.buffEffectName)
-                {
-                    case BuffEffectName.SlowMovement:
-                        PM.startMoveSpeed *= (be.buffPower / 100.0f);
-                        break;
-                    case BuffEffectName.SlowAttack:
-                        CS.setAttackSpeed(CS.getAttackSpeed() * (be.buffPower / 100.0f));
-                        break;
-                    case BuffEffectName.Stun:
-                        //Make sure character is only stunned if not immune
-                        if (!CS.getImmunityToStun())
-                        {
-                            CS.setAttackSpeed(0);
-                            if (PM != null)
-                            {
-                                PM.SetMoveSpeed(0);
-                            }
-                        }
-                        break;
-                    case BuffEffectName.DeflectDamage:
-                        break;
-                    case BuffEffectName.NoMovement:
-                        break;
-                    case BuffEffectName.ReducedDamageTaken:
-                        CS.setAllDamageReduction(CS.getAllDamageReduction() + be.buffPower);
-                        break;
-                    case BuffEffectName.ImmuneToDamage:
-                        CS.setImmunity(true);
-                        break;
-                    case BuffEffectName.NoMelee:
-                        break;
-                    case BuffEffectName.ImmuneToStun:
-                        CS.setImmunityToStun(true);
-                        break;
-                    case BuffEffectName.ImmuneToSlow:
-                        CS.setImmunityToSlow(true);
-                        break;
-                    case BuffEffectName.ReduceDamageGiven:
-                        break;
-                    case BuffEffectName.RestoreHealthToAttacker:
-                        CS.setPercentageHealthRestoredToAttacker(CS.getPercentageHealthRestoredToAttacker() + be.buffPower);
-                        break;
-                    case BuffEffectName.RestoreManaToAttacker:
-                        CS.setPercentagePowerRestoredToAttacker(CS.getPercentagePowerRestoredToAttacker() + be.buffPower);
-                        break;
-                    case BuffEffectName.IncreaseMeleeDamage:
-                        break;
-                    case BuffEffectName.RecoverManaByAmount:
-                        break;
-                    case BuffEffectName.IncreaseAttackSpeed:
-                        break;
-                    case BuffEffectName.IncreaseCritChance:
-                        break;
-                    case BuffEffectName.IncreaseMaxHeath:
-                        break;
-                    case BuffEffectName.IncreaseMaxMana:
-                        break;
-                    case BuffEffectName.ReduceMeleeDamageByPercentage:
-                        Vector2 currentAttackDamage = CS.getAttackDamage();
-                        Vector2 newAttackDamage = new Vector2((currentAttackDamage[0] / 100) * (100 - be.buffPower), (currentAttackDamage[1] / 100) * (100 - be.buffPower));
-                        CS.setAttackDamage(newAttackDamage);
-                        break;
-                    case BuffEffectName.IncreaseBaseWeaponDamage:
-                        break;
-                    case BuffEffectName.DevotionAura:
-                        aura.SetAura(AuraName.DEVOTION);
-                        break;
-                    case BuffEffectName.MagicalAura:
-                        aura.SetAura(AuraName.MAGICAL);
-                        break;
-                    case BuffEffectName.RetributionAura:
-                        aura.SetAura(AuraName.RETRIBUTION);
-                        break;
-                    default:
-                        break;
-                }
+                e.ActivateEffect(CS, PM, EAI);
             }
 
             for (int i = 0; i < possibleBuffs.Length; i++)
@@ -131,7 +78,7 @@ public class BuffHandler : MonoBehaviour
                 {
                     if (b.infiniteLength != true)
                     {
-                        StartCoroutine(BuffTimer(i, b.lengthInSeconds));
+                        StartBuffTimer(i, b.lengthInSeconds);
                         break;
                     }
                     else
@@ -145,78 +92,10 @@ public class BuffHandler : MonoBehaviour
 
     public void DeactivateBuff(Buff b)
     {
-        foreach (BuffEffect be in b.effects)
+        
+        foreach (Effect e in b.effects)
         {
-            switch (be.buffEffectName)
-            {
-                case BuffEffectName.SlowMovement:
-                    PM.startMoveSpeed /= (be.buffPower / 100.0f);
-                    break;
-                case BuffEffectName.SlowAttack:
-                    CS.setAttackSpeed(CS.getAttackSpeed() / (be.buffPower / 100.0f));
-                    break;
-                case BuffEffectName.Stun:
-                    CS.setAttackSpeed(CS.startAttackSpeed);
-                    if (PM != null)
-                    {
-                        PM.SetMoveSpeed(PM.startMoveSpeed);
-                    }
-                    break;
-                case BuffEffectName.DeflectDamage:
-                    break;
-                case BuffEffectName.NoMovement:
-                    break;
-                case BuffEffectName.ReducedDamageTaken:
-                    CS.setAllDamageReduction(CS.getAllDamageReduction() - be.buffPower);
-                    break;
-                case BuffEffectName.ImmuneToDamage:
-                    CS.setImmunity(false);
-                    break;
-                case BuffEffectName.NoMelee:
-                    break;
-                case BuffEffectName.ImmuneToStun:
-                    CS.setImmunityToStun(false);
-                    break;
-                case BuffEffectName.ImmuneToSlow:
-                    CS.setImmunityToSlow(false);
-                    break;
-                case BuffEffectName.ReduceDamageGiven:
-                    break;
-                case BuffEffectName.RestoreHealthToAttacker:
-                    CS.setPercentageHealthRestoredToAttacker(CS.getPercentageHealthRestoredToAttacker() - be.buffPower);
-                    break;
-                case BuffEffectName.RestoreManaToAttacker:
-                    CS.setPercentagePowerRestoredToAttacker(CS.getPercentagePowerRestoredToAttacker() - be.buffPower);
-                    break;
-                case BuffEffectName.IncreaseMeleeDamage:
-                    break;
-                case BuffEffectName.RecoverManaByAmount:
-                    break;
-                case BuffEffectName.IncreaseAttackSpeed:
-                    break;
-                case BuffEffectName.IncreaseCritChance:
-                    break;
-                case BuffEffectName.IncreaseMaxHeath:
-                    break;
-                case BuffEffectName.IncreaseMaxMana:
-                    break;
-                case BuffEffectName.ReduceMeleeDamageByPercentage:
-                    Vector2 currentAttackDamage = CS.getAttackDamage();
-                    Vector2 newAttackDamage = new Vector2((currentAttackDamage[0] / 100) * (100 + be.buffPower), (currentAttackDamage[1] / 100) * (100 + be.buffPower));
-                    CS.setAttackDamage(newAttackDamage);
-                    break;
-                case BuffEffectName.IncreaseBaseWeaponDamage:
-                    break;
-                case BuffEffectName.DevotionAura:
-                    aura.SetAura(AuraName.NONE);
-                    break;
-                case BuffEffectName.MagicalAura:
-                    aura.SetAura(AuraName.NONE);
-                    break;
-                case BuffEffectName.RetributionAura:
-                    aura.SetAura(AuraName.NONE);
-                    break;
-            }
+            e.DeactivateEffect(CS, PM, EAI);
         }
 
         for (int i = 0; i < possibleBuffs.Length; i++)
@@ -228,20 +107,23 @@ public class BuffHandler : MonoBehaviour
         }
     }
 
-    private IEnumerator BuffTimer(int buff , int seconds)
+    private void StartBuffTimer(int buff , int seconds)
     {
         possibleBuffObjects[buff].SetActive(true);
-        CS.AddBuff(possibleBuffObjects[buff].GetComponent<Buff>());
+        CS.AddBuff(possibleBuffs[buff]);
 
-        for(float i = seconds; i >= 0; i--)
-        {
-            yield return new WaitForSeconds(1);
-            buffTexts[buff].text = UIManager.instance.MinutesAndSecondsFormat((int)System.Math.Ceiling(i));
-        }
+        possibleBuffs[buff].SetToRemove(buff, seconds);
+    }
 
+    public void UpdateBuffText(int buff, string time)
+    {
+        buffTexts[buff].text = time;
+    }
+
+    public void RemoveBuff(int buff)
+    {
         possibleBuffObjects[buff].SetActive(false);
-        Buff buffToRemove = possibleBuffObjects[buff].GetComponent<Buff>();
-        DeactivateBuff(buffToRemove);
+        DeactivateBuff(possibleBuffs[buff]);
         CS.RemoveBuff(possibleBuffObjects[buff].GetComponent<Buff>());
     }
 
@@ -258,3 +140,255 @@ public class BuffHandler : MonoBehaviour
     }
 }
 
+public enum EffectName
+{
+    SlowMovementByPercentage,
+    SlowAttackByPercentage,
+    HealByPercentageOfHealth,
+    Stun,
+    MeleeHeal,
+    NoMovement,
+    ReducedDamageTaken,
+    ImmuneToDamage,
+    NoMelee,
+    ImmuneToStun,
+    ImmuneToSlow,
+    ReduceDamageGiven,
+    RestoreHealthToAttacker,
+    RestoreManaToAttacker,
+    IncreaseInstantSpellDamage,
+    RecoverManaByAmount,
+    IncreaseAttackSpeed,
+    IncreaseCritChance,
+    IncreaseMaxHealthByPercentage,
+    IncreaseMaxManaByPercentage,
+    ReduceMeleeDamageByPercentage,
+    IncreaseMeleeDamageByPercentage,
+    AdditionalDamageForSingleTargetAttack,
+    ChanceToStun,
+    RecoverManaByPercentage,
+    AttackAttackers,
+    DevotionAura,
+    MagicalAura,
+    RetributionAura
+}
+
+[System.Serializable]
+public class Effect
+{
+    public EffectName name;
+    public float power;
+    public float chance = 100;
+
+    public void ActivateEffect(CharacterState CS, PlayerMovement PM, EnemyAI EAI)
+    {
+        switch (name)
+        {
+            case EffectName.SlowMovementByPercentage:
+                if(PM != null)
+                {
+                    PM.SetMoveSpeed((PM.GetMoveSpeed() / 100.0f) * (100 + power));
+                } else
+                {
+                    EAI.SetMoveSpeed((EAI.GetMoveSpeed() / 100.0f) * (100 + power));
+                }
+                break;
+            case EffectName.SlowAttackByPercentage:
+                CS.setAttackSpeed((CS.getAttackSpeed() / 100.0f) * (100 + power));
+                break;
+            case EffectName.Stun:
+                //Make sure character is only stunned if not immune
+                if (!CS.getImmunityToStun())
+                {
+                    CS.setAttackSpeed(0);
+                    if (PM != null)
+                    {
+                        PM.SetMoveSpeed(0);
+                    } else if(EAI != null)
+                    {
+                        EAI.SetMoveSpeed(0);
+                    }
+                }
+                break;
+            case EffectName.MeleeHeal:
+                CS.setHealingFromMelee(CS.getHealingFromMelee() + power);
+                CS.setMeleeHealChance(CS.getMeleeHealChance() + chance);
+                break;
+            case EffectName.NoMovement:
+                break;
+            case EffectName.ReducedDamageTaken:
+                CS.setAllDamageReduction(CS.getAllDamageReduction() + power);
+                break;
+            case EffectName.ImmuneToDamage:
+                CS.setImmunity(true);
+                break;
+            case EffectName.NoMelee:
+                break;
+            case EffectName.ImmuneToStun:
+                CS.setImmunityToStun(true);
+                break;
+            case EffectName.ImmuneToSlow:
+                CS.setImmunityToSlow(true);
+                break;
+            case EffectName.ReduceDamageGiven:
+                break;
+            case EffectName.RestoreHealthToAttacker:
+                CS.setPercentageHealthRestoredToAttacker(CS.getPercentageHealthRestoredToAttacker() + power);
+                break;
+            case EffectName.RestoreManaToAttacker:
+                CS.setPercentagePowerRestoredToAttacker(CS.getPercentagePowerRestoredToAttacker() + power);
+                break;
+            case EffectName.IncreaseInstantSpellDamage:
+                CS.setAdditionalSpellDamage(CS.getAdditionalSpellDamage() + power);
+                break;
+            case EffectName.RecoverManaByAmount:
+                CS.changeRegenPower((int)power);
+                break;
+            case EffectName.IncreaseAttackSpeed:
+                CS.setAttackSpeed(CS.getAttackSpeed() + power);
+                break;
+            case EffectName.IncreaseCritChance:
+                CS.setChanceToCrit(CS.getChanceToCrit() + (int)power);
+                CS.setSpellChanceToCrit(CS.getSpellChanceToCrit() + (int)power);
+                break;
+            case EffectName.IncreaseMaxHealthByPercentage:
+                CS.setMaxHealth((int)((CS.getMaxHealth() / 100.0f) * (100 + power)));
+                break;
+            case EffectName.IncreaseMaxManaByPercentage:
+                CS.setMaxPower((int)((CS.getMaxPower() / 100.0f) * (100 + power)));
+                break;
+            case EffectName.ReduceMeleeDamageByPercentage:
+                Vector2 currentAttackDamage = CS.getAttackDamage();
+                Vector2 newAttackDamage = new Vector2((currentAttackDamage[0] / 100.0f) * (100 - power), (currentAttackDamage[1] / 100.0f) * (100 - power));
+                CS.setAttackDamage(newAttackDamage);
+                break;
+            case EffectName.IncreaseMeleeDamageByPercentage:
+                currentAttackDamage = CS.getAttackDamage();
+                CS.setAttackDamage(new Vector2((currentAttackDamage[0] / 100.0f) * (100 + power), (currentAttackDamage[1] / 100.0f) * (100 + power)));
+                break;
+            case EffectName.DevotionAura:
+                CS.getAura().SetAura(AuraName.DEVOTION);
+                break;
+            case EffectName.MagicalAura:
+                CS.getAura().SetAura(AuraName.MAGICAL);
+                break;
+            case EffectName.RetributionAura:
+                CS.getAura().SetAura(AuraName.RETRIBUTION);
+                break;
+            case EffectName.RecoverManaByPercentage:
+                CS.changeRegenPower(CS.getRegenPower() + power);
+                break;
+            case EffectName.AttackAttackers:
+                CS.setDamageDeflected(CS.getDamageDeflected() + power);
+                break;
+            case EffectName.ChanceToStun:
+                CS.setSecondsToStun((int)power);
+                CS.setChanceToStun(CS.getChanceToStun() + chance);
+                break;
+        }
+    }
+
+    public void DeactivateEffect(CharacterState CS, PlayerMovement PM, EnemyAI EAI)
+    {
+        switch (name)
+        {
+            case EffectName.SlowMovementByPercentage:
+                if (PM != null)
+                {
+                    PM.SetMoveSpeed((PM.GetMoveSpeed() / (100 + power)) * 100);
+                } else
+                {
+                    EAI.SetMoveSpeed((EAI.GetMoveSpeed() / (100 + power) * 100));
+                }
+                break;
+            case EffectName.SlowAttackByPercentage:
+                CS.setAttackSpeed((CS.getAttackSpeed() / (100 + power)) * 100);
+                break;
+            case EffectName.Stun:
+                CS.setAttackSpeed(CS.startAttackSpeed);
+                if (PM != null)
+                {
+                    PM.SetMoveSpeed(PM.startMoveSpeed);
+                } else if(EAI != null)
+                {
+                    EAI.SetMoveSpeed(EAI.startMoveSpeed);
+                }
+                break;
+            case EffectName.MeleeHeal:
+                CS.setHealingFromMelee(CS.getHealingFromMelee() - power);
+                CS.setMeleeHealChance(CS.getMeleeHealChance() - chance);
+                break;
+            case EffectName.NoMovement:
+                break;
+            case EffectName.ReducedDamageTaken:
+                CS.setAllDamageReduction(CS.getAllDamageReduction() - power);
+                break;
+            case EffectName.ImmuneToDamage:
+                CS.setImmunity(false);
+                break;
+            case EffectName.NoMelee:
+                break;
+            case EffectName.ImmuneToStun:
+                CS.setImmunityToStun(false);
+                break;
+            case EffectName.ImmuneToSlow:
+                CS.setImmunityToSlow(false);
+                break;
+            case EffectName.ReduceDamageGiven:
+                break;
+            case EffectName.RestoreHealthToAttacker:
+                CS.setPercentageHealthRestoredToAttacker(CS.getPercentageHealthRestoredToAttacker() - power);
+                break;
+            case EffectName.RestoreManaToAttacker:
+                CS.setPercentagePowerRestoredToAttacker(CS.getPercentagePowerRestoredToAttacker() - power);
+                break;
+            case EffectName.IncreaseInstantSpellDamage:
+                CS.setAdditionalSpellDamage(CS.getAdditionalSpellDamage() - power);
+                break;
+            case EffectName.RecoverManaByAmount:
+                CS.changeRegenPower(-(int)power);
+                break;
+            case EffectName.IncreaseAttackSpeed:
+                CS.setAttackSpeed(CS.getAttackSpeed() - power);
+                break;
+            case EffectName.IncreaseCritChance:
+                CS.setChanceToCrit(CS.getChanceToCrit() - (int)power);
+                CS.setSpellChanceToCrit(CS.getSpellChanceToCrit() - (int)power);
+                break;
+            case EffectName.IncreaseMaxHealthByPercentage:
+                CS.setMaxHealth((int)((CS.getMaxHealth() / (100 + power)) * 100));
+                break;
+            case EffectName.IncreaseMaxManaByPercentage:
+                CS.setMaxPower((int)((CS.getMaxPower() / (100 + power)) * 100));
+                break;
+            case EffectName.ReduceMeleeDamageByPercentage:
+                Vector2 currentAttackDamage = CS.getAttackDamage();
+                Vector2 newAttackDamage = new Vector2((currentAttackDamage[0] / (100 + power)) * 100, (currentAttackDamage[0] / (100 + power)) * 100);
+                CS.setAttackDamage(newAttackDamage);
+                break;
+            case EffectName.IncreaseMeleeDamageByPercentage:
+                currentAttackDamage = CS.getAttackDamage();
+                newAttackDamage = new Vector2((currentAttackDamage[0] / (100 - power)) * 100, (currentAttackDamage[0] / (100 - power)) * 100);
+                CS.setAttackDamage(newAttackDamage);
+                break;
+            case EffectName.DevotionAura:
+                CS.getAura().SetAura(AuraName.NONE);
+                break;
+            case EffectName.MagicalAura:
+                CS.getAura().SetAura(AuraName.NONE);
+                break;
+            case EffectName.RetributionAura:
+                CS.getAura().SetAura(AuraName.NONE);
+                break;
+            case EffectName.RecoverManaByPercentage:
+                CS.changeRegenPower(CS.getRegenPower() - power);
+                break;
+            case EffectName.AttackAttackers:
+                CS.setDamageDeflected(CS.getDamageDeflected() - power);
+                break;
+            case EffectName.ChanceToStun:
+                CS.setChanceToStun(CS.getChanceToStun() - chance);
+                break;
+        }
+    }
+}

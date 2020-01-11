@@ -1,6 +1,4 @@
-﻿using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
+﻿using UnityEngine;
 using UnityEngine.UI;
 
 public enum AbilityName
@@ -43,7 +41,7 @@ public enum AbilityGroupName
     Utilities,
     Aura,
     Seal,
-    Judgement,
+    JudgementSetup,
     Blessing
 }
 
@@ -154,7 +152,7 @@ public class Ability : MonoBehaviour
         //If in range and affordable
         int manaCost = (int)((CS.getMaxPower() / 100.0) * percentagePowerCost);
 
-        if(CS.getPower() >= manaCost && !coolingDown && (CS.getTarget().tag == targetTag || targetTag == ""))
+        if(CS.getPower() >= manaCost && !coolingDown && CS.getTarget() != null && (CS.getTarget().tag == targetTag || targetTag == ""))
         {
             useable = true;
         } else
@@ -175,7 +173,6 @@ public struct AbilityEffect
 public struct AbilityGroup
 {
     public AbilityGroupName abilityGroupName;
-    public AbilityName[] abilities;
     public GameObject abilityPanel;
 }
 

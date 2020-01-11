@@ -47,6 +47,7 @@ public class UIManager : MonoBehaviour
     private Slider targetManaSlider;
     private Text targetHealthText;
     private Text targetManaText;
+    public BuffHandler targetBuffHandler;
 
     /*
      * Target of Target Panel
@@ -400,6 +401,19 @@ public class UIManager : MonoBehaviour
             activeSubAbilityPanel.SetActive(false);
             activeSubAbilityPanel.SetActive(true);
         }
+
+        //Set buffs
+        targetBuffHandler.CS = CS;
+        if (tag.Equals("Player"))
+        {
+            targetBuffHandler.PM = CS.GetComponent<PlayerMovement>();
+            targetBuffHandler.EAI = null;
+        } else
+        {
+            targetBuffHandler.EAI = CS.GetComponent<EnemyAI>();
+            targetBuffHandler.PM = null;
+        }
+        targetBuffHandler.UpdateBuffs();
     }
 
     public void UpdateTarget(CharacterState CS)

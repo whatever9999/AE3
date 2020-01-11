@@ -5,10 +5,13 @@ ScriptsOnlyBuild:
     - UnityStandardAssets.CrossPlatformInput.MobileControlRig
     Assembly-CSharp.dll:
     - Ability
+    - Aura
     - Buff
     - BuffHandler
     - CameraFollow
+    - ChangeScene
     - CharacterState
+    - Concecration
     - EnemyAI
     - NormalAttack
     - PlayerAbilities
@@ -113,29 +116,35 @@ ScriptsOnlyBuild:
     - Class: 114
       Script: {instanceID: 9530}
     - Class: 114
-      Script: {instanceID: 9660}
+      Script: {instanceID: 9618}
     - Class: 114
-      Script: {instanceID: 9696}
+      Script: {instanceID: 9662}
     - Class: 114
-      Script: {instanceID: 9778}
+      Script: {instanceID: 9698}
     - Class: 114
-      Script: {instanceID: 9874}
+      Script: {instanceID: 9780}
     - Class: 114
-      Script: {instanceID: 9956}
+      Script: {instanceID: 9876}
     - Class: 114
-      Script: {instanceID: 10026}
+      Script: {instanceID: 9958}
     - Class: 114
-      Script: {instanceID: 10226}
+      Script: {instanceID: 10028}
     - Class: 114
-      Script: {instanceID: 10228}
+      Script: {instanceID: 10114}
     - Class: 114
-      Script: {instanceID: 10304}
+      Script: {instanceID: 10230}
     - Class: 114
-      Script: {instanceID: 10384}
+      Script: {instanceID: 10232}
     - Class: 114
-      Script: {instanceID: 10412}
+      Script: {instanceID: 10308}
     - Class: 114
-      Script: {instanceID: 10538}
+      Script: {instanceID: 10388}
+    - Class: 114
+      Script: {instanceID: 10416}
+    - Class: 114
+      Script: {instanceID: 10542}
+    - Class: 114
+      Script: {instanceID: 235758}
     - Class: 115
       Script: {instanceID: 0}
     - Class: 128
@@ -163,6 +172,53 @@ ScriptsOnlyBuild:
     - Class: 483693784
       Script: {instanceID: 0}
     - Class: 1839735485
+      Script: {instanceID: 0}
+    Assets/Scenes/Menu.unity:
+    - Class: 1
+      Script: {instanceID: 0}
+    - Class: 4
+      Script: {instanceID: 0}
+    - Class: 20
+      Script: {instanceID: 0}
+    - Class: 21
+      Script: {instanceID: 0}
+    - Class: 28
+      Script: {instanceID: 0}
+    - Class: 48
+      Script: {instanceID: 0}
+    - Class: 81
+      Script: {instanceID: 0}
+    - Class: 104
+      Script: {instanceID: 0}
+    - Class: 114
+      Script: {instanceID: 9330}
+    - Class: 114
+      Script: {instanceID: 9332}
+    - Class: 114
+      Script: {instanceID: 9338}
+    - Class: 114
+      Script: {instanceID: 9344}
+    - Class: 114
+      Script: {instanceID: 9352}
+    - Class: 114
+      Script: {instanceID: 9388}
+    - Class: 114
+      Script: {instanceID: 9390}
+    - Class: 114
+      Script: {instanceID: 235758}
+    - Class: 115
+      Script: {instanceID: 0}
+    - Class: 128
+      Script: {instanceID: 0}
+    - Class: 157
+      Script: {instanceID: 0}
+    - Class: 213
+      Script: {instanceID: 0}
+    - Class: 222
+      Script: {instanceID: 0}
+    - Class: 223
+      Script: {instanceID: 0}
+    - Class: 224
       Script: {instanceID: 0}
   scriptHashData:
   - hash:
@@ -641,6 +697,12 @@ ScriptsOnlyBuild:
     className: AnimationTrack
   - hash:
       serializedVersion: 2
+      Hash: d5afd52e2917ba63af6b8b6b74574fc8
+    assemblyName: Assembly-CSharp.dll
+    namespaceName: 
+    className: Aura
+  - hash:
+      serializedVersion: 2
       Hash: 00274a21279f5cb831ce20f895049e38
     assemblyName: Unity.TextMeshPro.dll
     namespaceName: TMPro
@@ -665,7 +727,7 @@ ScriptsOnlyBuild:
     className: WaypointProgressTracker
   - hash:
       serializedVersion: 2
-      Hash: b85783a9e76fa965921c3d60a6f81d22
+      Hash: a2d70790362ff37614edbc78d742f390
     assemblyName: Assembly-CSharp.dll
     namespaceName: 
     className: CharacterState
@@ -761,7 +823,7 @@ ScriptsOnlyBuild:
     className: ButtonHandler
   - hash:
       serializedVersion: 2
-      Hash: 1c739fb6e14b8f32f40a72b4ae560a7d
+      Hash: 490ee26edd4401f7dca0424c8a3884af
     assemblyName: Assembly-CSharp.dll
     namespaceName: 
     className: UIManager
@@ -821,7 +883,7 @@ ScriptsOnlyBuild:
     className: TextContainer
   - hash:
       serializedVersion: 2
-      Hash: a95640894446f24f250444f734f19546
+      Hash: acf0842e89a56633a12ad0fe1e86dcfd
     assemblyName: Assembly-CSharp.dll
     namespaceName: 
     className: Buff
@@ -837,6 +899,12 @@ ScriptsOnlyBuild:
     assemblyName: Unity.Timeline.dll
     namespaceName: UnityEngine.Timeline
     className: SignalReceiver
+  - hash:
+      serializedVersion: 2
+      Hash: f3bba031cc1d5ae0ce3cfbca54372833
+    assemblyName: Assembly-CSharp.dll
+    namespaceName: 
+    className: Concecration
   - hash:
       serializedVersion: 2
       Hash: 4a0369cd366c126cd420018a4ac01f32
@@ -917,7 +985,7 @@ ScriptsOnlyBuild:
     className: SFXManager
   - hash:
       serializedVersion: 2
-      Hash: 18fce00f144b8dd0ec728ac577b20fdd
+      Hash: bfcee9a25b953a81505537ccb58600b3
     assemblyName: Assembly-CSharp.dll
     namespaceName: 
     className: BuffHandler
@@ -941,7 +1009,7 @@ ScriptsOnlyBuild:
     className: DataPrivacyButton
   - hash:
       serializedVersion: 2
-      Hash: 43492624efacde36f1d9e9946be2aca9
+      Hash: d10d953096df64e4008803404c983e35
     assemblyName: Assembly-CSharp.dll
     namespaceName: 
     className: Ability
@@ -953,7 +1021,7 @@ ScriptsOnlyBuild:
     className: AudioTrack
   - hash:
       serializedVersion: 2
-      Hash: 964fa407b24149cda22a502e39b01a69
+      Hash: 23ca8018d4f813a2c7360dd6bef17186
     assemblyName: Assembly-CSharp.dll
     namespaceName: 
     className: EnemyAI
@@ -965,7 +1033,7 @@ ScriptsOnlyBuild:
     className: FollowTarget
   - hash:
       serializedVersion: 2
-      Hash: b2b33a0892fb7c2c76b1dc29fbf40b33
+      Hash: 5bc8029a0b86194c753c4c2f77232e64
     assemblyName: Assembly-CSharp.dll
     namespaceName: 
     className: NormalAttack
@@ -995,7 +1063,7 @@ ScriptsOnlyBuild:
     className: TMP_StyleSheet
   - hash:
       serializedVersion: 2
-      Hash: 247eebc7752385dac8bb75f267b78bf7
+      Hash: a6eb4ed077f521f220b234506370b087
     assemblyName: Assembly-CSharp.dll
     namespaceName: 
     className: PlayerAbilities
@@ -1041,7 +1109,14 @@ ScriptsOnlyBuild:
     assemblyName: Assembly-CSharp-firstpass.dll
     namespaceName: UnityStandardAssets.Utility
     className: AutoMobileShaderSwitch
+  - hash:
+      serializedVersion: 2
+      Hash: 71bb6a6b6c8f052f948db64c7dd3ca4f
+    assemblyName: Assembly-CSharp.dll
+    namespaceName: 
+    className: ChangeScene
   platform: 13
   scenePathNames:
+  - Assets/Scenes/Menu.unity
   - Assets/Scenes/Game.unity
   playerPath: C:/Users/Domin/OneDrive/Documents/GitHub/AE3/AE3/Build/MMObile.apk

@@ -6,6 +6,8 @@ public class NormalAttack : MonoBehaviour
 {
     public Range meleeRange;
 
+    public Buff enemyStunBuff;
+
     private bool combatMode = false;
     public bool GetCombatMode() { return combatMode; }
     private bool isAttacking = false;
@@ -13,39 +15,42 @@ public class NormalAttack : MonoBehaviour
 
     private Animator A;
     private CharacterState CS;
+    private EnemyAI EnemyAI;
 
     private void Start()
     {
         A = GetComponent<Animator>();
         CS = GetComponent<CharacterState>();
+
+        if (tag.Equals("Enemy"))
+        {
+            EnemyAI = GetComponent<EnemyAI>();
+        }
     }
 
     private void Update()
     {
-        if(combatMode)
+        if (combatMode)
         {
             CheckIfInRange();
 
-            try
+            if ((CS.getTarget() != null && CS.getTarget().tag == "Dead") || tag.Equals("Dead"))
             {
-                if (CS.getTarget().tag == "Dead")
-                {
-                    DisableCombat();
-                    CS.setTarget(null);
-                    UIManager.instance.ToggleTargetPanel(false);
-                    UIManager.instance.ToggleTargetOfTargetPanel(false);
-                }
+                DisableCombat();
+                CS.setTarget(null);
+                UIManager.instance.ToggleTargetPanel(false);
+                UIManager.instance.ToggleTargetOfTargetPanel(false);
             }
-            catch
-            {
-                //There is no target
-            }
-
-
+            
             if (inRange && !isAttacking)
             {
                 isAttacking = true;
                 StartCoroutine(Attack());
+            }
+
+            if (tag.Equals("Enemy"))
+            {
+                EnemyAI.SetInRange(inRange);
             }
         }
     }
@@ -54,10 +59,11 @@ public class NormalAttack : MonoBehaviour
     {
         SFXManager.instance.PlayEffect(SoundEffectNames.BUTTON);
         combatMode = !combatMode;
-        if(combatMode)
+        if (combatMode)
         {
             CS.setActiveRegen(PowerRegenCircumstance.NOTCASTING);
-        } else
+        }
+        else
         {
             CS.setActiveRegen(PowerRegenCircumstance.NOTINCOMBAT);
         }
@@ -69,6 +75,7 @@ public class NormalAttack : MonoBehaviour
         CS.setActiveRegen(PowerRegenCircumstance.NOTINCOMBAT);
         combatMode = false;
         inRange = false;
+        isAttacking = false;
         A.SetBool("AttackMode", combatMode);
     }
 
@@ -87,7 +94,8 @@ public class NormalAttack : MonoBehaviour
             if (targetInRange)
             {
                 inRange = true;
-            } else
+            }
+            else
             {
                 inRange = false;
             }
@@ -97,7 +105,7 @@ public class NormalAttack : MonoBehaviour
     private IEnumerator Attack()
     {
         float currentAttackSpeed = CS.getAttackSpeed();
-        if(currentAttackSpeed != 0)
+        if (currentAttackSpeed != 0)
         {
             A.speed = 1 / currentAttackSpeed;
             A.SetTrigger("Attack");
@@ -112,7 +120,7 @@ public class NormalAttack : MonoBehaviour
     {
         //Successful hit?
         int rand = Random.Range(0, 100);
-        if(rand <= CS.getChanceToHit())
+        if (rand <= CS.getChanceToHit() && inRange)
         {
             //Calculate damage done in range
             Vector2 attackDamage = CS.getAttackDamage();
@@ -120,24 +128,60 @@ public class NormalAttack : MonoBehaviour
 
             //Critical hit
             rand = Random.Range(0, 100);
-            if(rand <= CS.getChanceToCrit())
+            if (rand <= CS.getChanceToCrit())
             {
                 damageToDeal = (int)(damageToDeal * CS.getCritDamageMultiplier());
             }
 
-            //Deal Damage
-            CS.getTarget().DealDamage(damageToDeal, UIManager.ResultType.PHYSICALDAMAGE);
+            //Deal Damage and check if damage is deflected off of target
+            CharacterState target = CS.getTarget();
+            target.DealDamage(damageToDeal, UIManager.ResultType.PHYSICALDAMAGE);
+            float damageDeflectedByTarget = target.getDamageDeflected();
+            if (damageDeflectedByTarget > 0)
+            {
+                Vector2 targetAttackDamage = target.getAttackDamage();
+                int damageDealt = (int)((Random.Range(targetAttackDamage[0], targetAttackDamage[1]) / 100) * damageDeflectedByTarget);
+                //Make sure that if 2% of base damage is 0 the damage isn't shown
+                if (damageDealt > 0)
+                {
+                    CS.DealDamage(damageDealt, UIManager.ResultType.MAGICALDAMAGE);
+                }
+            }
             SFXManager.instance.PlayEffect(SoundEffectNames.ATTACK);
 
             //Account for buffs on the enemy
-            if (tag.Equals("Player")) {
+            if (tag.Equals("Player"))
+            {
                 PlayerAbilities.instance.CheckEffects();
             }
-        } else
-        {
-            SFXManager.instance.PlayEffect(SoundEffectNames.WHOOSH);
+
+            //Heal if there's a melee heal
+            rand = Random.Range(0, 100);
+            if (rand < CS.getMeleeHealChance())
+            {
+                int amountToHeal = (int)((damageToDeal / 100.0) * CS.getHealingFromMelee());
+                CS.Heal(amountToHeal);
+            }
+
+            //Check if enemy gets stunned
+            float chanceToStun = CS.getChanceToStun();
+            if (chanceToStun > 0)
+            {
+                rand = Random.Range(0, 100);
+
+                if (rand < chanceToStun)
+                {
+                    enemyStunBuff.lengthInSeconds = CS.getSecondsToStun();
+                    enemyStunBuff.GetBuffHandler().ActivateBuff(enemyStunBuff);
+                }
+            }
+            else
+            {
+                SFXManager.instance.PlayEffect(SoundEffectNames.WHOOSH);
+            }
         }
     }
+
 }
 
 [System.Serializable]

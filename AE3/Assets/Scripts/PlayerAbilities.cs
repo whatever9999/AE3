@@ -168,7 +168,24 @@ public class PlayerAbilities : MonoBehaviour
         }
 
         int damageCaused = 0;
+        int additionalDamage = 0;
         bool spellEffectsOccured = true;
+
+        //Add on additional damage for instant cast spells
+        if(a.instantCast)
+        {
+            float additionalDamagePercentage = CS.getAdditionalSpellDamage();
+            if (additionalDamagePercentage > 0)
+            {
+                Vector2 attackDamage = CS.getAttackDamage();
+                additionalDamage = (int)((Random.Range(attackDamage[0], attackDamage[1]) / 100.0) * additionalDamagePercentage);
+
+                if(additionalDamage > 0)
+                {
+                    CS.getTarget().DealDamage(additionalDamage, UIManager.ResultType.MAGICALDAMAGE);
+                }
+            }
+        }
 
         //Effects
         foreach (AbilityEffect e in a.effects)
@@ -213,9 +230,9 @@ public class PlayerAbilities : MonoBehaviour
                 case AbilityEffectName.RemoveStunAndSlow:
                     foreach(Buff b in CS.GetCurrentBuffs())
                     {
-                        foreach (BuffEffect be in b.effects)
+                        foreach (Effect be in b.effects)
                         {
-                            if(be.buffEffectName == BuffEffectName.Stun)
+                            if(be.name == EffectName.Stun)
                             {
                                 b.GetBuffHandler().DeactivateBuff(b);
                             }
